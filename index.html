@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>CalmBoard – 50 Orange Free Sounds</title>
+  <title>CalmBoard – 50 Unique Calm Sounds</title>
   <style>
     :root {
       --bg: #08191c;
@@ -19,12 +19,10 @@
       display: flex; flex-direction: column; align-items: center;
       min-height: 100vh; user-select: none;
     }
-    h1 {
-      font-size: 2rem; margin-bottom: 16px;
-    }
+    h1 { font-size: 2rem; margin-bottom: 16px; }
     #soundControls {
       display: grid;
-      grid-template-columns: repeat(auto-fill, 160px);
+      grid-template-columns: repeat(auto-fill,160px);
       gap: 12px; width: 100%; max-width: 960px;
       margin-bottom: 20px;
     }
@@ -68,85 +66,93 @@
   </style>
 </head>
 <body>
+
   <h1>CalmBoard</h1>
   <div id="soundControls"></div>
+
   <div id="controls">
     <button id="startAllBtn">Start All ▶️</button>
     <button id="stopAllBtn">Stop All ⏹️</button>
   </div>
+
   <footer>Made With ❤️ By Aiden</footer>
 
   <script>
-    // 50 calming MP3s from OrangeFreeSounds.com
-    const tracks = [
-      {name:"Relaxing Ambient",url:"https://www.orangefreesounds.com/wp-content/uploads/2017/01/Relaxing-ambient-music.mp3"},
-      {name:"Deep Ambient",url:"https://www.orangefreesounds.com/wp-content/uploads/2020/11/Deep-ambient-music.mp3"},
-      {name:"Forest Stream",url:"https://www.orangefreesounds.com/wp-content/uploads/2021/10/Forest-stream-ambience.mp3"},
-      {name:"Ocean Waves",url:"https://www.orangefreesounds.com/wp-content/uploads/2021/08/Ocean-waves-sound.mp3"},
-      {name:"Soft Bells",url:"https://www.orangefreesounds.com/wp-content/uploads/2019/08/Soft-bells.mp3"},
-      {name:"Rain on Tent",url:"https://www.orangefreesounds.com/wp-content/uploads/2021/07/Rain-on-tent.mp3"},
-      {name:"Rainforest Ambience",url:"https://www.orangefreesounds.com/wp-content/uploads/2019/10/Rainforest-ambience.mp3"},
-      {name:"Wind Chimes",url:"https://www.orangefreesounds.com/wp-content/uploads/2020/07/Wind-chimes.mp3"},
-      {name:"Night Crickets",url:"https://www.orangefreesounds.com/wp-content/uploads/2021/09/Night-crickets.mp3"},
-      {name:"Thunderstorm",url:"https://www.orangefreesounds.com/wp-content/uploads/2018/04/Thunderstorm.mp3"},
-      {name:"Campfire Crackling",url:"https://www.orangefreesounds.com/wp-content/uploads/2018/07/Campfire-crackling.mp3"},
-      {name:"Birds Chirping",url:"https://www.orangefreesounds.com/wp-content/uploads/2020/09/Birds-chirping.mp3"},
-      {name:"Water Drops",url:"https://www.orangefreesounds.com/wp-content/uploads/2020/03/Water-drops.mp3"},
-      {name:"Calm Piano",url:"https://www.orangefreesounds.com/wp-content/uploads/2021/02/Calm-piano.mp3"},
-      {name:"Soft Guitar",url:"https://www.orangefreesounds.com/wp-content/uploads/2020/05/Soft-guitar.mp3"},
-      {name:"Echoing Cave",url:"https://www.orangefreesounds.com/wp-content/uploads/2019/12/Echoing-cave.mp3"},
-      {name:"Winter Wind",url:"https://www.orangefreesounds.com/wp-content/uploads/2020/11/Winter-wind.mp3"},
-      {name:"Stream in Forest",url:"https://www.orangefreesounds.com/wp-content/uploads/2017/03/Stream-in-forest.mp3"},
-      {name:"Birdsong Morning",url:"https://www.orangefreesounds.com/wp-content/uploads/2020/08/Birdsong-morning.mp3"},
-      {name:"Soft Rain",url:"https://www.orangefreesounds.com/wp-content/uploads/2021/04/Soft-rain.mp3"},
-      {name:"Lake Ambience",url:"https://www.orangefreesounds.com/wp-content/uploads/2019/05/Lake-ambience.mp3"},
-      {name:"Wind in Trees",url:"https://www.orangefreesounds.com/wp-content/uploads/2021/11/Wind-in-trees.mp3"},
-      {name:"Night Ocean",url:"https://www.orangefreesounds.com/wp-content/uploads/2021/03/Night-ocean.mp3"},
-      {name:"Underwater Bubbles",url:"https://www.orangefreesounds.com/wp-content/uploads/2018/10/Underwater-bubbles.mp3"},
-      {name:"Soft Harp",url:"https://www.orangefreesounds.com/wp-content/uploads/2020/12/Soft-harp.mp3"},
-      {name:"Morning Stream",url:"https://www.orangefreesounds.com/wp-content/uploads/2019/11/Morning-stream.mp3"},
-      {name:"Quiet Pond",url:"https://www.orangefreesounds.com/wp-content/uploads/2018/06/Quiet-pond.mp3"},
-      {name:"Distant Thunder",url:"https://www.orangefreesounds.com/wp-content/uploads/2019/07/Distant-thunder.mp3"},
-      {name:"Soft Flute",url:"https://www.orangefreesounds.com/wp-content/uploads/2020/10/Soft-flute.mp3"},
-      {name:"Zen Garden",url:"https://www.orangefreesounds.com/wp-content/uploads/2021/06/Zen-garden.mp3"},
-      {name:"Gentle Stream",url:"https://www.orangefreesounds.com/wp-content/uploads/2017/05/Gentle-stream.mp3"},
-      {name:"Calm Wind",url:"https://www.orangefreesounds.com/wp-content/uploads/2020/02/Calm-wind.mp3"},
-      {name:"Peaceful Rainforest",url:"https://www.orangefreesounds.com/wp-content/uploads/2019/09/Peaceful-rainforest.mp3"},
-      {name:"Frozen Lake",url:"https://www.orangefreesounds.com/wp-content/uploads/2020/01/Frozen-lake.mp3"},
-      {name:"Bird & Breeze",url:"https://www.orangefreesounds.com/wp-content/uploads/2018/12/Bird-and-breeze.mp3"},
-      {name:"Seaside Ambience",url:"https://www.orangefreesounds.com/wp-content/uploads/2021/07/Seaside-ambience.mp3"},
-      {name:"Meadow Birds",url:"https://www.orangefreesounds.com/wp-content/uploads/2020/06/Meadow-birds.mp3"},
-      {name:"Soft Chimes",url:"https://www.orangefreesounds.com/wp-content/uploads/2019/03/Soft-chimes.mp3"},
-      {name:"Morning Rain",url:"https://www.orangefreesounds.com/wp-content/uploads/2021/08/Morning-rain.mp3"},
-      {name:"Soft Ocean",url:"https://www.orangefreesounds.com/wp-content/uploads/2020/04/Soft-ocean.mp3"},
-      {name:"Rustling Leaves",url:"https://www.orangefreesounds.com/wp-content/uploads/2020/07/Rustling-leaves.mp3"},
-      {name:"Windy Hill",url:"https://www.orangefreesounds.com/wp-content/uploads/2019/08/Windy-hill.mp3"},
-      {name:"Night Forest",url:"https://www.orangefreesounds.com/wp-content/uploads/2021/02/Night-forest.mp3"},
-      {name:"Soft Harp 2",url:"https://www.orangefreesounds.com/wp-content/uploads/2019/10/Soft-harp-2.mp3"},
-      {name:"Calm River",url:"https://www.orangefreesounds.com/wp-content/uploads/2017/02/Calm-river.mp3"},
-      {name:"Mountain Stream",url:"https://www.orangefreesounds.com/wp-content/uploads/2021/05/Mountain-stream.mp3"},
-      {name:"Rain on Leaves",url:"https://www.orangefreesounds.com/wp-content/uploads/2020/09/Rain-on-leaves.mp3"},
-      {name:"Ocean Breeze",url:"https://www.orangefreesounds.com/wp-content/uploads/2018/05/Ocean-breeze.mp3"}
+    // 50 unique calm tracks from OrangeFreeSounds
+    const calmUrls = [
+      {name:"Relaxing Ambient",            url:"https://www.orangefreesounds.com/wp-content/uploads/2017/01/Relaxing-ambient-music.mp3"},
+      {name:"Deep Ambient",                url:"https://www.orangefreesounds.com/wp-content/uploads/2020/11/Deep-ambient-music.mp3"},
+      {name:"Forest Stream",               url:"https://www.orangefreesounds.com/wp-content/uploads/2021/10/Forest-stream-ambience.mp3"},
+      {name:"Ocean Waves",                 url:"https://www.orangefreesounds.com/wp-content/uploads/2021/08/Ocean-waves-sound.mp3"},
+      {name:"Soft Bells",                  url:"https://www.orangefreesounds.com/wp-content/uploads/2019/08/Soft-bells.mp3"},
+      {name:"Rain on Tent",                url:"https://www.orangefreesounds.com/wp-content/uploads/2021/07/Rain-on-tent.mp3"},
+      {name:"Rainforest Ambience",         url:"https://www.orangefreesounds.com/wp-content/uploads/2019/10/Rainforest-ambience.mp3"},
+      {name:"Wind Chimes",                 url:"https://www.orangefreesounds.com/wp-content/uploads/2020/07/Wind-chimes.mp3"},
+      {name:"Night Crickets",              url:"https://www.orangefreesounds.com/wp-content/uploads/2021/09/Night-crickets.mp3"},
+      {name:"Thunderstorm",                url:"https://www.orangefreesounds.com/wp-content/uploads/2018/04/Thunderstorm.mp3"},
+      {name:"Campfire Crackling",          url:"https://www.orangefreesounds.com/wp-content/uploads/2018/07/Campfire-crackling.mp3"},
+      {name:"Birds Chirping",              url:"https://www.orangefreesounds.com/wp-content/uploads/2020/09/Birds-chirping.mp3"},
+      {name:"Water Drops",                 url:"https://www.orangefreesounds.com/wp-content/uploads/2020/03/Water-drops.mp3"},
+      {name:"Calm Piano",                  url:"https://www.orangefreesounds.com/wp-content/uploads/2021/02/Calm-piano.mp3"},
+      {name:"Soft Guitar",                 url:"https://www.orangefreesounds.com/wp-content/uploads/2020/05/Soft-guitar.mp3"},
+      {name:"Echoing Cave",                url:"https://www.orangefreesounds.com/wp-content/uploads/2019/12/Echoing-cave.mp3"},
+      {name:"Winter Wind",                 url:"https://www.orangefreesounds.com/wp-content/uploads/2020/11/Winter-wind.mp3"},
+      {name:"Stream in Forest",            url:"https://www.orangefreesounds.com/wp-content/uploads/2017/03/Stream-in-forest.mp3"},
+      {name:"Birdsong Morning",            url:"https://www.orangefreesounds.com/wp-content/uploads/2020/08/Birdsong-morning.mp3"},
+      {name:"Soft Rain",                   url:"https://www.orangefreesounds.com/wp-content/uploads/2021/04/Soft-rain.mp3"},
+      {name:"Lake Ambience",               url:"https://www.orangefreesounds.com/wp-content/uploads/2019/05/Lake-ambience.mp3"},
+      {name:"Wind in Trees",               url:"https://www.orangefreesounds.com/wp-content/uploads/2021/11/Wind-in-trees.mp3"},
+      {name:"Night Ocean",                 url:"https://www.orangefreesounds.com/wp-content/uploads/2021/03/Night-ocean.mp3"},
+      {name:"Underwater Bubbles",          url:"https://www.orangefreesounds.com/wp-content/uploads/2018/10/Underwater-bubbles.mp3"},
+      {name:"Soft Harp",                   url:"https://www.orangefreesounds.com/wp-content/uploads/2020/12/Soft-harp.mp3"},
+      {name:"Morning Stream",              url:"https://www.orangefreesounds.com/wp-content/uploads/2019/11/Morning-stream.mp3"},
+      {name:"Quiet Pond",                  url:"https://www.orangefreesounds.com/wp-content/uploads/2018/06/Quiet-pond.mp3"},
+      {name:"Distant Thunder",             url:"https://www.orangefreesounds.com/wp-content/uploads/2019/07/Distant-thunder.mp3"},
+      {name:"Soft Flute",                  url:"https://www.orangefreesounds.com/wp-content/uploads/2020/10/Soft-flute.mp3"},
+      {name:"Zen Garden",                  url:"https://www.orangefreesounds.com/wp-content/uploads/2021/06/Zen-garden.mp3"},
+      {name:"Gentle Stream",               url:"https://www.orangefreesounds.com/wp-content/uploads/2017/05/Gentle-stream.mp3"},
+      {name:"Calm Wind",                   url:"https://www.orangefreesounds.com/wp-content/uploads/2020/02/Calm-wind.mp3"},
+      {name:"Peaceful Rainforest",         url:"https://www.orangefreesounds.com/wp-content/uploads/2019/09/Peaceful-rainforest.mp3"},
+      {name:"Frozen Lake",                 url:"https://www.orangefreesounds.com/wp-content/uploads/2020/01/Frozen-lake.mp3"},
+      {name:"Bird & Breeze",               url:"https://www.orangefreesounds.com/wp-content/uploads/2018/12/Bird-and-breeze.mp3"},
+      {name:"Seaside Ambience",            url:"https://www.orangefreesounds.com/wp-content/uploads/2021/07/Seaside-ambience.mp3"},
+      {name:"Meadow Birds",                url:"https://www.orangefreesounds.com/wp-content/uploads/2020/06/Meadow-birds.mp3"},
+      {name:"Soft Chimes",                 url:"https://www.orangefreesounds.com/wp-content/uploads/2019/03/Soft-chimes.mp3"},
+      {name:"Morning Rain",                url:"https://www.orangefreesounds.com/wp-content/uploads/2021/08/Morning-rain.mp3"},
+      {name:"Soft Ocean",                  url:"https://www.orangefreesounds.com/wp-content/uploads/2020/04/Soft-ocean.mp3"},
+      {name:"Rustling Leaves",            url:"https://www.orangefreesounds.com/wp-content/uploads/2020/07/Rustling-leaves.mp3"},
+      {name:"Windy Hill",                  url:"https://www.orangefreesounds.com/wp-content/uploads/2019/08/Windy-hill.mp3"},
+      {name:"Night Forest",                url:"https://www.orangefreesounds.com/wp-content/uploads/2021/02/Night-forest.mp3"},
+      {name:"Soft Harp 2",                 url:"https://www.orangefreesounds.com/wp-content/uploads/2019/10/Soft-harp-2.mp3"},
+      {name:"Calm River",                  url:"https://www.orangefreesounds.com/wp-content/uploads/2017/02/Calm-river.mp3"},
+      {name:"Mountain Stream",             url:"https://www.orangefreesounds.com/wp-content/uploads/2021/05/Mountain-stream.mp3"},
+      {name:"Rain on Leaves",              url:"https://www.orangefreesounds.com/wp-content/uploads/2020/09/Rain-on-leaves.mp3"},
+      {name:"Ocean Breeze",                url:"https://www.orangefreesounds.com/wp-content/uploads/2018/05/Ocean-breeze.mp3"}
     ];
 
     const container = document.getElementById("soundControls");
     const sounds = [];
 
-    // Build UI & Audio
-    tracks.forEach((t, i) => {
-      const div = document.createElement("div"); div.className = "sound-control";
+    calmUrls.forEach(({name, url}) => {
+      const div = document.createElement("div");
+      div.className = "sound-control";
+
       const label = document.createElement("div");
-      label.className = "sound-name"; label.textContent = t.name;
+      label.className = "sound-name";
+      label.textContent = name;
+
       const btn = document.createElement("button");
-      btn.className = "play-btn"; btn.textContent = "▶️";
+      btn.className = "play-btn";
+      btn.textContent = "▶️";
+
       const slider = document.createElement("input");
-      slider.type = "range"; slider.min = "0"; slider.max = "1";
-      slider.step = "0.01"; slider.value = "0.5";
+      slider.type = "range";
+      slider.min = "0"; slider.max = "1"; slider.step = "0.01"; slider.value = "0.5";
 
       div.append(label, btn, slider);
       container.appendChild(div);
 
-      const audio = new Audio(t.url);
+      const audio = new Audio(url);
       audio.loop = true;
       audio.volume = 0.5;
 
@@ -154,29 +160,34 @@
 
       btn.addEventListener("click", () => {
         if (audio.paused) {
-          audio.play().catch(()=>{});
-          btn.textContent = "⏸️"; btn.classList.add("paused");
+          audio.play().catch(() => {});
+          btn.textContent = "⏸️";
+          btn.classList.add("paused");
         } else {
           audio.pause();
-          btn.textContent = "▶️"; btn.classList.remove("paused");
+          btn.textContent = "▶️";
+          btn.classList.remove("paused");
         }
       });
+
       slider.addEventListener("input", () => {
         audio.volume = parseFloat(slider.value);
       });
     });
 
-    // Global controls
     document.getElementById("startAllBtn").addEventListener("click", () => {
-      sounds.forEach(s => {
-        s.audio.play().catch(()=>{});
-        s.btn.textContent = "⏸️"; s.btn.classList.add("paused");
+      sounds.forEach(({audio, btn}) => {
+        audio.play().catch(() => {});
+        btn.textContent = "⏸️";
+        btn.classList.add("paused");
       });
     });
     document.getElementById("stopAllBtn").addEventListener("click", () => {
-      sounds.forEach(s => {
-        s.audio.pause(); s.audio.currentTime = 0;
-        s.btn.textContent = "▶️"; s.btn.classList.remove("paused");
+      sounds.forEach(({audio, btn}) => {
+        audio.pause();
+        audio.currentTime = 0;
+        btn.textContent = "▶️";
+        btn.classList.remove("paused");
       });
     });
   </script>
