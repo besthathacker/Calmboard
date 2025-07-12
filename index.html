@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" >
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>CalmBoard - 50+ Sounds</title>
+  <title>CalmBoard - 50+ Calming Sounds</title>
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -15,39 +15,37 @@
       flex-direction: column;
       align-items: center;
       padding: 20px;
+      user-select: none;
     }
     h1 {
       font-weight: 700;
       font-size: 2.5rem;
       margin-bottom: 15px;
+      text-align: center;
     }
     #soundControls {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
+      display: grid;
+      grid-template-columns: repeat(auto-fill,minmax(180px,1fr));
       gap: 15px;
       max-width: 1000px;
-      margin-bottom: 30px;
       width: 100%;
+      margin-bottom: 30px;
     }
     .sound-control {
       background: #1e1e1e;
       border-radius: 10px;
-      padding: 10px 15px;
-      width: 180px;
+      padding: 12px 15px;
       display: flex;
       flex-direction: column;
       align-items: center;
       box-shadow: 0 3px 8px rgba(0,0,0,0.5);
-      user-select: none;
     }
     .sound-name {
-      margin-bottom: 8px;
+      margin-bottom: 10px;
       font-weight: 600;
       font-size: 1rem;
       text-align: center;
-      height: 36px;
-      overflow: hidden;
+      min-height: 40px;
     }
     button.play-btn {
       background-color: #4caf50;
@@ -58,8 +56,9 @@
       font-size: 1.5rem;
       color: white;
       cursor: pointer;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
       transition: background-color 0.3s ease;
+      user-select: none;
     }
     button.play-btn.paused {
       background-color: #f44336;
@@ -109,6 +108,8 @@
       cursor: pointer;
       user-select: none;
       transition: background-color 0.3s ease;
+      flex: 1 1 120px;
+      min-width: 120px;
     }
     #controls button:hover {
       background-color: #1769aa;
@@ -125,7 +126,6 @@
       padding: 12px 0;
       color: #777;
       font-size: 14px;
-      user-select: none;
     }
   </style>
 </head>
@@ -135,6 +135,7 @@
   <div id="soundControls"></div>
 
   <div id="controls">
+    <button id="startAllBtn">Start All ▶️</button>
     <button id="muteAllBtn">Mute All 🔇</button>
     <button id="stopAllBtn">Stop All ⏹️</button>
     <button id="saveStateBtn">Save State 💾</button>
@@ -170,247 +171,214 @@
         {name: "Cave Drips", url: "https://cdn.pixabay.com/download/audio/2021/10/11/audio_9b01f7cc7e.mp3?filename=cave-drips-8495.mp3"},
         {name: "Waterfall", url: "https://cdn.pixabay.com/download/audio/2021/07/28/audio_6f29f9c4e4.mp3?filename=waterfall-6456.mp3"},
         {name: "Underwater", url: "https://cdn.pixabay.com/download/audio/2021/09/19/audio_f3d4dfb9bb.mp3?filename=underwater-8195.mp3"},
+        // Add more sounds as in previous code ...
       ];
 
-      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-      const masterGain = audioContext.createGain();
-      masterGain.connect(audioContext.destination);
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      let masterGain = audioCtx.createGain();
+      masterGain.gain.value = 1;
+      masterGain.connect(audioCtx.destination);
 
-      const soundControlsDiv = document.getElementById('soundControls');
-      const muteAllBtn = document.getElementById('muteAllBtn');
-      const stopAllBtn = document.getElementById('stopAllBtn');
-      const saveStateBtn = document.getElementById('saveStateBtn');
-      const loadStateBtn = document.getElementById('loadStateBtn');
-      const startRecBtn = document.getElementById('startRecBtn');
-      const stopRecBtn = document.getElementById('stopRecBtn');
-      const recordStatus = document.getElementById('recordStatus');
+      const sounds = [];
+      const container = document.getElementById("soundControls");
 
-      let allSources = [];
-      let allButtons = [];
-      let allVolumes = [];
+      soundData.forEach((sound, index) => {
+        const soundDiv = document.createElement("div");
+        soundDiv.className = "sound-control";
 
-      // Unlock AudioContext on first user interaction (needed for iOS)
-      async function unlockAudioContext() {
-        if (audioContext.state === 'suspended') {
-          await audioContext.resume();
-        }
-      }
-      document.body.addEventListener('click', unlockAudioContext, {once: true});
+        const nameEl = document.createElement("div");
+        nameEl.className = "sound-name";
+        nameEl.textContent = sound.name;
 
-      function createSoundControls({name, url}, index) {
-        const container = document.createElement('div');
-        container.className = 'sound-control';
+        const playBtn = document.createElement("button");
+        playBtn.className = "play-btn";
+        playBtn.title = `Play/Pause ${sound.name}`;
+        playBtn.textContent = "▶️";
 
-        const label = document.createElement('div');
-        label.className = 'sound-name';
-        label.textContent = name;
+        const volumeSlider = document.createElement("input");
+        volumeSlider.type = "range";
+        volumeSlider.min = 0;
+        volumeSlider.max = 1;
+        volumeSlider.step = 0.01;
+        volumeSlider.value = 0.5;
 
-        const btn = document.createElement('button');
-        btn.className = 'play-btn';
-        btn.title = `Play/Pause ${name}`;
-        btn.textContent = '▶️';
+        soundDiv.appendChild(nameEl);
+        soundDiv.appendChild(playBtn);
+        soundDiv.appendChild(volumeSlider);
+        container.appendChild(soundDiv);
 
-        const vol = document.createElement('input');
-        vol.type = 'range';
-        vol.min = 0;
-        vol.max = 1;
-        vol.step = 0.01;
-        vol.value = 0.5;
+        sounds.push({
+          buffer: null,
+          source: null,
+          gainNode: audioCtx.createGain(),
+          isPlaying: false,
+          playBtn,
+          volumeSlider,
+          name: sound.name,
+        });
 
-        container.appendChild(label);
-        container.appendChild(btn);
-        container.appendChild(vol);
-        soundControlsDiv.appendChild(container);
+        sounds[index].gainNode.connect(masterGain);
 
-        const audio = new Audio(url);
-        audio.loop = true;
-        const track = audioContext.createMediaElementSource(audio);
-        const gainNode = audioContext.createGain();
-        gainNode.gain.value = parseFloat(vol.value);
-        track.connect(gainNode).connect(masterGain);
+        fetch(sound.url)
+          .then(res => res.arrayBuffer())
+          .then(data => audioCtx.decodeAudioData(data))
+          .then(buffer => {
+            sounds[index].buffer = buffer;
+          })
+          .catch(e => console.error("Error loading sound:", sound.name, e));
 
-        allSources.push({audio, gainNode});
-        allButtons.push(btn);
-        allVolumes.push(vol);
+        playBtn.addEventListener("click", async () => {
+          if (audioCtx.state === 'suspended') await audioCtx.resume();
 
-        btn.addEventListener('click', async () => {
-          await unlockAudioContext();
-          try {
-            if (audio.paused) {
-              await audio.play();
-              btn.textContent = '⏸️';
-              btn.classList.add('paused');
-            } else {
-              audio.pause();
-              btn.textContent = '▶️';
-              btn.classList.remove('paused');
-            }
-          } catch (e) {
-            alert('Playback failed: ' + e.message);
+          const soundObj = sounds[index];
+
+          if (soundObj.isPlaying) {
+            stopSound(index);
+          } else {
+            playSound(index);
           }
         });
 
-        vol.addEventListener('input', () => {
-          gainNode.gain.value = parseFloat(vol.value);
+        volumeSlider.addEventListener("input", () => {
+          const gainValue = parseFloat(volumeSlider.value);
+          sounds[index].gainNode.gain.setTargetAtTime(gainValue, audioCtx.currentTime, 0.01);
         });
+      });
+
+      function playSound(idx) {
+        const soundObj = sounds[idx];
+        if (!soundObj.buffer) return;
+
+        const source = audioCtx.createBufferSource();
+        source.buffer = soundObj.buffer;
+        source.loop = true;
+        source.connect(soundObj.gainNode);
+        source.start(0);
+
+        soundObj.source = source;
+        soundObj.isPlaying = true;
+        soundObj.playBtn.textContent = "⏸️";
+        soundObj.playBtn.classList.add("paused");
       }
 
-      soundData.forEach(createSoundControls);
+      function stopSound(idx) {
+        const soundObj = sounds[idx];
+        if (soundObj.source) {
+          soundObj.source.stop();
+          soundObj.source.disconnect();
+          soundObj.source = null;
+        }
+        soundObj.isPlaying = false;
+        soundObj.playBtn.textContent = "▶️";
+        soundObj.playBtn.classList.remove("paused");
+      }
 
-      let isMuted = false;
-      muteAllBtn.addEventListener('click', async () => {
-        await unlockAudioContext();
-        isMuted = !isMuted;
-        masterGain.gain.value = isMuted ? 0 : 1;
-        muteAllBtn.textContent = isMuted ? 'Unmute All 🔊' : 'Mute All 🔇';
-      });
-
-      stopAllBtn.addEventListener('click', async () => {
-        await unlockAudioContext();
-        allSources.forEach(({audio}, i) => {
-          audio.pause();
-          audio.currentTime = 0;
-          allButtons[i].textContent = '▶️';
-          allButtons[i].classList.remove('paused');
+      // Global controls
+      document.getElementById("startAllBtn").addEventListener("click", async () => {
+        if (audioCtx.state === 'suspended') await audioCtx.resume();
+        sounds.forEach((s, i) => {
+          if (!s.isPlaying) playSound(i);
         });
       });
 
-      saveStateBtn.addEventListener('click', () => {
-        const state = allSources.map(({audio, gainNode}) => ({
-          playing: !audio.paused,
-          currentTime: audio.currentTime,
-          volume: gainNode.gain.value
-        }));
-        localStorage.setItem('calmingSoundboardState', JSON.stringify(state));
-        alert('State saved!');
+      document.getElementById("muteAllBtn").addEventListener("click", () => {
+        masterGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.01);
       });
 
-      loadStateBtn.addEventListener('click', async () => {
-        await unlockAudioContext();
-        const raw = localStorage.getItem('calmingSoundboardState');
-        if (!raw) {
-          alert('No saved state found.');
+      document.getElementById("stopAllBtn").addEventListener("click", () => {
+        sounds.forEach((_, idx) => stopSound(idx));
+      });
+
+      // Save and Load State
+      document.getElementById("saveStateBtn").addEventListener("click", () => {
+        const state = sounds.map(s => ({
+          name: s.name,
+          volume: s.volumeSlider.value,
+          isPlaying: s.isPlaying
+        }));
+        localStorage.setItem("calmboardState", JSON.stringify(state));
+        alert("State saved!");
+      });
+
+      document.getElementById("loadStateBtn").addEventListener("click", () => {
+        const state = JSON.parse(localStorage.getItem("calmboardState"));
+        if (!state) {
+          alert("No saved state found.");
           return;
         }
-        const state = JSON.parse(raw);
-        for (let i = 0; i < state.length; i++) {
-          const {playing, currentTime, volume} = state[i];
-          const {audio, gainNode} = allSources[i];
-          audio.currentTime = currentTime;
-          gainNode.gain.value = volume;
-          allVolumes[i].value = volume;
-          if (playing) {
-            try {
-              await audio.play();
-              allButtons[i].textContent = '⏸️';
-              allButtons[i].classList.add('paused');
-            } catch {
-              allButtons[i].textContent = '▶️';
-              allButtons[i].classList.remove('paused');
-            }
+        state.forEach((s, i) => {
+          sounds[i].volumeSlider.value = s.volume;
+          sounds[i].gainNode.gain.setTargetAtTime(parseFloat(s.volume), audioCtx.currentTime, 0.01);
+          if (s.isPlaying) {
+            playSound(i);
           } else {
-            audio.pause();
-            allButtons[i].textContent = '▶️';
-            allButtons[i].classList.remove('paused');
+            stopSound(i);
           }
-        }
+        });
+        alert("State loaded!");
       });
 
-      const dest = audioContext.createMediaStreamDestination();
-      masterGain.connect(dest);
-
+      // Recording setup
       let mediaRecorder;
       let recordedChunks = [];
+      const recordStatus = document.getElementById("recordStatus");
+      const startRecBtn = document.getElementById("startRecBtn");
+      const stopRecBtn = document.getElementById("stopRecBtn");
 
-      startRecBtn.addEventListener('click', async () => {
-        await unlockAudioContext();
+      async function mixAndRecord() {
+        if (audioCtx.state === 'suspended') await audioCtx.resume();
 
-        recordedChunks = [];
-        mediaRecorder = new MediaRecorder(dest.stream, {mimeType: 'audio/webm'});
+        const dest = audioCtx.createMediaStreamDestination();
+
+        sounds.forEach(s => {
+          if (s.isPlaying) {
+            s.gainNode.connect(dest);
+          }
+        });
+
+        mediaRecorder = new MediaRecorder(dest.stream);
 
         mediaRecorder.ondataavailable = e => {
-          if (e.data.size > 0) recordedChunks.push(e.data);
+          if (e.data.size > 0) {
+            recordedChunks.push(e.data);
+          }
         };
 
-        mediaRecorder.onstart = () => {
-          recordStatus.textContent = 'Recording... 🎙️';
-          startRecBtn.disabled = true;
-          stopRecBtn.disabled = false;
-        };
-
-        mediaRecorder.onstop = async () => {
-          recordStatus.textContent = 'Encoding MP3... ⏳';
-
-          const webmBlob = new Blob(recordedChunks, {type: 'audio/webm'});
-          const arrayBuffer = await webmBlob.arrayBuffer();
-          const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-
-          const mp3Blob = encodeMp3(audioBuffer);
-
-          const url = URL.createObjectURL(mp3Blob);
-          const a = document.createElement('a');
+        mediaRecorder.onstop = () => {
+          const blob = new Blob(recordedChunks, { type: "audio/webm" });
+          recordedChunks = [];
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.style.display = "none";
           a.href = url;
-          a.download = 'calmboard-recording.mp3';
+          a.download = "calmboard_recording.webm";
+          document.body.appendChild(a);
           a.click();
           URL.revokeObjectURL(url);
-
-          recordStatus.textContent = 'Recording saved as MP3 ✅';
-          startRecBtn.disabled = false;
-          stopRecBtn.disabled = true;
+          a.remove();
+          recordStatus.textContent = "Recording saved!";
+          sounds.forEach(s => {
+            try { s.gainNode.disconnect(dest); } catch {}
+          });
         };
 
         mediaRecorder.start();
+        recordStatus.textContent = "Recording...";
+      }
+
+      startRecBtn.addEventListener("click", () => {
+        mixAndRecord();
+        startRecBtn.disabled = true;
+        stopRecBtn.disabled = false;
       });
 
-      stopRecBtn.addEventListener('click', () => {
-        if (mediaRecorder && mediaRecorder.state === 'recording') {
+      stopRecBtn.addEventListener("click", () => {
+        if (mediaRecorder && mediaRecorder.state !== "inactive") {
           mediaRecorder.stop();
+          startRecBtn.disabled = false;
+          stopRecBtn.disabled = true;
         }
       });
-
-      function encodeMp3(audioBuffer) {
-        const numChannels = audioBuffer.numberOfChannels;
-        const sampleRate = audioBuffer.sampleRate;
-        const mp3encoder = new lamejs.Mp3Encoder(numChannels, sampleRate, 128);
-
-        const samples = [];
-        for(let ch = 0; ch < numChannels; ch++) {
-          samples.push(audioBuffer.getChannelData(ch));
-        }
-
-        const blockSize = 1152;
-        const mp3Data = [];
-
-        for (let i = 0; i < samples[0].length; i += blockSize) {
-          const sampleChunk = [];
-          for (let ch = 0; ch < numChannels; ch++) {
-            sampleChunk[ch] = samples[ch].subarray(i, i + blockSize);
-          }
-          let mp3buf;
-          if (numChannels === 1) {
-            mp3buf = mp3encoder.encodeBuffer(floatTo16BitPCM(sampleChunk[0]));
-          } else {
-            mp3buf = mp3encoder.encodeBuffer(
-              floatTo16BitPCM(sampleChunk[0]),
-              floatTo16BitPCM(sampleChunk[1])
-            );
-          }
-          if (mp3buf.length > 0) mp3Data.push(mp3buf);
-        }
-        const mp3buf = mp3encoder.flush();
-        if (mp3buf.length > 0) mp3Data.push(mp3buf);
-
-        return new Blob(mp3Data, {type: 'audio/mp3'});
-      }
-
-      function floatTo16BitPCM(input) {
-        const output = new Int16Array(input.length);
-        for (let i = 0; i < input.length; i++) {
-          let s = Math.max(-1, Math.min(1, input[i]));
-          output[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
-        }
-        return output;
-      }
     })();
   </script>
 </body>
