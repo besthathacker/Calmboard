@@ -2,72 +2,63 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>CalmBoard – 50 OrangeFreeSounds (Self-Checking)</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>CalmBoard – 50 Calming Tracks (Proxied)</title>
   <style>
     :root {
-      --bg: #08191c;
-      --fg: #ffffff;
-      --muted: #b3b3b3;
-      --panel: #121212;
-      --accent: #1db954;
+      --bg: #08191c; --fg: #ffffff; --muted: #b3b3b3;
+      --panel: #121212; --accent: #1db954;
     }
     body {
-      margin: 0; padding: 20px;
-      background: var(--bg); color: var(--fg);
-      font-family: Arial, sans-serif;
-      display: flex; flex-direction: column; align-items: center;
-      min-height: 100vh; user-select: none;
+      margin:0; padding:20px;
+      background:var(--bg); color:var(--fg);
+      font-family:Arial,sans-serif;
+      display:flex; flex-direction:column; align-items:center;
+      min-height:100vh; user-select:none;
     }
-    h1 { font-size: 2rem; margin-bottom: 16px; }
+    h1 { font-size:2rem; margin-bottom:16px; }
     #soundControls {
-      display: grid;
-      grid-template-columns: repeat(auto-fill,160px);
-      gap: 12px; width: 100%; max-width: 960px;
-      margin-bottom: 20px;
+      display:grid;
+      grid-template-columns:repeat(auto-fill,160px);
+      gap:12px; width:100%; max-width:960px; margin-bottom:20px;
     }
     .sound-control {
-      background: var(--panel); border-radius: 8px;
-      padding: 12px; text-align: center;
+      background:var(--panel); border-radius:8px;
+      padding:12px; text-align:center;
     }
     .sound-name {
-      font-size: 0.9rem; margin-bottom: 8px;
-      color: var(--muted); height: 36px; overflow: hidden;
+      font-size:0.9rem; margin-bottom:8px;
+      color:var(--muted); height:36px; overflow:hidden;
     }
     .play-btn {
-      width: 44px; height: 44px; border: none;
-      border-radius: 50%; background: var(--accent);
-      color: var(--bg); font-size: 1.2rem; cursor: pointer;
-      margin-bottom: 8px; transition: background 0.2s ease;
+      width:44px; height:44px; border:none; border-radius:50%;
+      background:var(--accent); color:var(--bg);
+      font-size:1.2rem; cursor:pointer; margin-bottom:8px;
+      transition:background 0.2s ease;
     }
-    .play-btn.paused {
-      background: #e0245e; color: var(--fg);
-    }
-    input[type=range] {
-      width: 100%; accent-color: var(--accent);
-    }
+    .play-btn.paused { background:#e0245e; }
+    input[type=range] { width:100%; accent-color:var(--accent); }
     #controls {
-      display: flex; flex-wrap: wrap; gap: 10px;
-      margin-bottom: 20px; width: 100%; max-width: 960px;
-      justify-content: center;
+      display:flex; flex-wrap:wrap; gap:10px;
+      margin-bottom:20px; width:100%; max-width:960px;
+      justify-content:center;
     }
     #controls button {
-      flex: 1 1 120px; padding: 10px;
-      border: none; border-radius: 6px;
-      background: var(--accent); color: var(--bg);
-      font-weight: bold; cursor: pointer;
-      transition: opacity 0.2s ease;
+      flex:1 1 120px; padding:10px; border:none;
+      border-radius:6px; background:var(--accent);
+      color:var(--bg); font-weight:bold; cursor:pointer;
+      transition:opacity 0.2s ease;
     }
-    #controls button:hover { opacity: 0.8; }
+    #controls button:hover { opacity:0.8; }
     footer {
-      margin-top: auto; color: var(--muted);
-      font-size: 0.85rem; text-align: center;
+      margin-top:auto; color:var(--muted);
+      font-size:0.85rem; text-align:center;
     }
   </style>
 </head>
 <body>
   <h1>CalmBoard</h1>
-  <div id="soundControls">Loading sounds…</div>
+  <div id="soundControls"></div>
   <div id="controls">
     <button id="startAllBtn">Start All ▶️</button>
     <button id="stopAllBtn">Stop All ⏹️</button>
@@ -75,8 +66,8 @@
   <footer>Made With ❤️ By Aiden</footer>
 
   <script>
-    // 50 unique calm MP3s from OrangeFreeSounds
-    const calmUrls = [
+    // OrangeFreeSounds MP3s (50 unique)
+    const calmTracks = [
       {name:"Relaxing Ambient",            url:"https://www.orangefreesounds.com/wp-content/uploads/2017/01/Relaxing-ambient-music.mp3"},
       {name:"Deep Ambient",                url:"https://www.orangefreesounds.com/wp-content/uploads/2020/11/Deep-ambient-music.mp3"},
       {name:"Forest Stream",               url:"https://www.orangefreesounds.com/wp-content/uploads/2021/10/Forest-stream-ambience.mp3"},
@@ -127,79 +118,40 @@
       {name:"Ocean Breeze",                url:"https://www.orangefreesounds.com/wp-content/uploads/2018/05/Ocean-breeze.mp3"}
     ];
 
+    const proxy = url => "https://api.allorigins.win/raw?url=" + encodeURIComponent(url);
     const container = document.getElementById("soundControls");
     const sounds = [];
 
-    // Verify each URL first, then build controls only for those that work
-    container.textContent = "Verifying URLs…";
+    calmTracks.forEach(({name, url}) => {
+      const div = document.createElement("div"); div.className="sound-control";
+      const label = document.createElement("div"); label.className="sound-name"; label.textContent=name;
+      const btn   = document.createElement("button"); btn.className="play-btn"; btn.textContent="▶️";
+      const slider= document.createElement("input"); slider.type="range"; slider.min=0; slider.max=1; slider.step=0.01; slider.value=0.5;
 
-    Promise.all(calmUrls.map(track =>
-      fetch(track.url, {method:"HEAD"})
-        .then(res => res.ok ? track : null)
-        .catch(()=>null)
-    )).then(validList => {
-      container.textContent = "";
-      validList.filter(t => t).forEach(({name,url}) => {
-        const div = document.createElement("div");
-        div.className = "sound-control";
+      div.append(label, btn, slider);
+      container.appendChild(div);
 
-        const label = document.createElement("div");
-        label.className = "sound-name";
-        label.textContent = name;
+      const audio = new Audio(proxy(url));
+      audio.loop = true; audio.volume = 0.5;
+      sounds.push({audio, btn});
 
-        const btn = document.createElement("button");
-        btn.className = "play-btn";
-        btn.textContent = "▶️";
-
-        const slider = document.createElement("input");
-        slider.type = "range";
-        slider.min = "0"; slider.max = "1"; slider.step = "0.01"; slider.value = "0.5";
-
-        div.append(label, btn, slider);
-        container.appendChild(div);
-
-        const audio = new Audio(url);
-        audio.loop = true;
-        audio.volume = 0.5;
-
-        sounds.push({audio, btn});
-
-        btn.addEventListener("click", () => {
-          if (audio.paused) {
-            audio.play().catch(()=>{});
-            btn.textContent = "⏸️";
-            btn.classList.add("paused");
-          } else {
-            audio.pause();
-            btn.textContent = "▶️";
-            btn.classList.remove("paused");
-          }
-        });
-
-        slider.addEventListener("input", () => {
-          audio.volume = parseFloat(slider.value);
-        });
-      });
-
-      if (!sounds.length) {
-        container.textContent = "No working URLs found.";
-      }
-
-      document.getElementById("startAllBtn").onclick = () => {
-        sounds.forEach(({audio,btn}) => {
+      btn.addEventListener("click", () => {
+        if (audio.paused) {
           audio.play().catch(()=>{});
-          btn.textContent = "⏸️";
-          btn.classList.add("paused");
-        });
-      };
-      document.getElementById("stopAllBtn").onclick = () => {
-        sounds.forEach(({audio,btn}) => {
+          btn.textContent="⏸️"; btn.classList.add("paused");
+        } else {
           audio.pause();
-          audio.currentTime = 0;
-          btn.textContent = "▶️";
-          btn.classList.remove("paused");
-        });
-      };
+          btn.textContent="▶️"; btn.classList.remove("paused");
+        }
+      });
+      slider.addEventListener("input",()=>audio.volume=slider.value);
+    });
+
+    document.getElementById("startAllBtn").addEventListener("click",()=>{
+      sounds.forEach(({audio,btn})=>{audio.play().catch(()=>{}); btn.textContent="⏸️"; btn.classList.add("paused");});
+    });
+    document.getElementById("stopAllBtn").addEventListener("click",()=>{
+      sounds.forEach(({audio,btn})=>{audio.pause(); audio.currentTime=0; btn.textContent="▶️"; btn.classList.remove("paused");});
     });
   </script>
 </body>
