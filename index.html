@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Calmboard</title>
+<style>
+  body {
+    background: #d0e8f2;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #2a3a4a;
+    margin: 0;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+  }
+  h1 {
+    margin-bottom: 1rem;
+    font-weight: 600;
+  }
+  #controls {
+    margin-bottom: 1.5rem;
+  }
+  #controls button {
+    background: #527aac;
+    border: none;
+    color: white;
+    font-size: 1rem;
+    border-radius: 8px;
+    padding: 10px 20px;
+    margin: 0 0.5rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  #controls button:hover {
+    background: #3a5a78;
+  }
+  .soundboard {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1rem 1.2rem;
+    width: 100%;
+    max-width: 1100px;
+  }
+  .sound {
+    background: #a9cce3;
+    border-radius: 12px;
+    padding: 1rem 1.2rem;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    user-select: none;
+  }
+  .sound button {
+    background: #527aac;
+    border: none;
+    color: white;
+    font-size: 1.4rem;
+    border-radius: 50%;
+    width: 56px;
+    height: 56px;
+    margin-bottom: 0.6rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  .sound button:hover {
+    background: #3a5a78;
+  }
+  .sound label {
+    font-weight: 600;
+    margin-bottom: 0.4rem;
+    text-align: center;
+  }
+  .sound input[type=range] {
+    width: 100%;
+  }
+  footer {
+    margin-top: 2rem;
+    font-size: 0.9rem;
+    color: #506a87;
+  }
+  #recordStatus {
+    margin-top: 1rem;
+    font-weight: bold;
+    color: #b22222;
+  }
+</style>
+</head>
+<body>
+
+<h1>Calmboard</h1>
+<div id="controls">
+  <button id="muteAllBtn">Mute All 🔇</button>
+  <button id="stopAllBtn">Stop All ⏹️</button>
+  <button id="saveStateBtn">Save State 💾</button>
+  <button id="loadStateBtn">Load State 📂</button>
+  <button id="startRecBtn">Start Recording ⏺️</button>
+  <button id="stopRecBtn" disabled>Stop Recording ⏹️</button>
+</div>
+
+<div class="soundboard" id="soundboard"></div>
+<div id="recordStatus"></div>
+
+<footer>Made with ❤️ by Aiden.</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/lamejs@1.2.0/lame.min.js"></script>
+<script>
+(async () => {
+  // Sound data (50 calming sounds)
+  const soundData = [
+    {name:'Rain', src:'https://cdn.pixabay.com/download/audio/2021/09/14/audio_d83e8dfe55.mp3?filename=rain-ambient-sound-11295.mp3'},
+    {name:'Ocean Waves', src:'https://cdn.pixabay.com/download/audio/2022/01/12/audio_5a4f2e4f53.mp3?filename=waves-at-beach-2908.mp3'},
+    {name:'Birds Chirping', src:'https://cdn.pixabay.com/download/audio/2021/08/04/audio_5f1f7ef395.mp3?filename=birds-in-forest-10949.mp3'},
+    {name:'Wind Chimes', src:'https://cdn.pixabay.com/download/audio/2021/08/04/audio_f918fc9d8b.mp3?filename=wind-chimes-10834.mp3'},
+    {name:'Night Crickets', src:'https://cdn.pixabay.com/download/audio/2021/09/28/audio_1f71e1706d.mp3?filename=night-crickets-11688.mp3'},
+    {name:'Thunderstorm', src:'https://cdn.pixabay.com/download/audio/2022/03/15/audio_ef842f271e.mp3?filename=thunderstorm-13133.mp3'},
+    {name:'Fireplace', src:'https://cdn.pixabay.com/download/audio/2022/01/10/audio_362d5605a9.mp3?filename=fireplace-crackling-2880.mp3'},
+    {name:'Forest Stream', src:'https://cdn.pixabay.com/download/audio/2021/10/20/audio_5a06e72f6d.mp3?filename=forest-stream-12000.mp3'},
+    {name:'Wind', src:'https://cdn.pixabay.com/download/audio/2022/04/02/audio_49d56e1313.mp3?filename=wind-14607.mp3'},
+    {name:'Calm Piano', src:'https://cdn.pixabay.com/download/audio/2021/08/05/audio_5c7c05c92b.mp3?filename=calm-piano-10872.mp3'},
+    {name:'Water Drops', src:'https://cdn.pixabay.com/download/audio/2021/08/05/audio_48e7d6a2d1.mp3?filename=water-drops-10882.mp3'},
+    {name:'Windy Leaves', src:'https://cdn.pixabay.com/download/audio/2021/09/28/audio_0c9d89bb3d.mp3?filename=leaves-in-wind-11689.mp3'},
+    {name:'Soft Bells', src:'https://cdn.pixabay.com/download/audio/2021/08/05/audio_8c7b5c35b3.mp3?filename=soft-bells-10871.mp3'},
+    {name:'Gentle River', src:'https://cdn.pixabay.com/download/audio/2021/10/20/audio_34636b5f9f.mp3?filename=gentle-river-12002.mp3'},
+    {name:'Meditation Chimes', src:'https://cdn.pixabay.com/download/audio/2021/08/05/audio_244a3df1e3.mp3?filename=meditation-chimes-10875.mp3'},
+    {name:'Night Ocean', src:'https://cdn.pixabay.com/download/audio/2021/08/05/audio_3116774a47.mp3?filename=night-ocean-10878.mp3'},
+    {name:'Soft Wind', src:'https://cdn.pixabay.com/download/audio/2021/08/05/audio_0b5ca0d01c.mp3?filename=soft-wind-10879.mp3'},
+    {name:'Campfire', src:'https://cdn.pixabay.com/download/audio/2022/02/15/audio_05c9f40b4d.mp3?filename=campfire-13000.mp3'},
+    {name:'Night Owl', src:'https://cdn.pixabay.com/download/audio/2021/08/05/audio_2c77d907bc.mp3?filename=night-owl-10870.mp3'},
+    {name:'Echoing Cave', src:'https://cdn.pixabay.com/download/audio/2021/10/20/audio_978a9a5d2e.mp3?filename=echoing-cave-12003.mp3'},
+
+    {name:'Gentle Waves', src:'https://cdn.pixabay.com/download/audio/2021/08/05/audio_64c3f97e3f.mp3?filename=gentle-waves-10874.mp3'},
+    {name:'Soft Ocean', src:'https://cdn.pixabay.com/download/audio/2021/08/05/audio_87a7127f3f.mp3?filename=soft-ocean-10873.mp3'},
+    {name:'Mountain Stream', src:'https://cdn.pixabay.com/download/audio/2021/10/20/audio_03caecb31a.mp3?filename=mountain-stream-12001.mp3'},
+    {name:'Quiet Forest', src:'https://cdn.pixabay.com/download/audio/2021/08/05/audio_f1f60c67b1.mp3?filename=quiet-forest-10869.mp3'},
+    {name:'Soft Flute', src:'https://cdn.pixabay.com/download/audio/2021/08/05/audio_11f170a8d0.mp3?filename=soft-flute-10876.mp3'},
+    {name:'Calm Night', src:'https://cdn.pixabay.com/download/audio/2021/09/28/audio_7e1c207c2a.mp3?filename=calm-night-11690.mp3'},
+    {name:'Water Stream', src:'https://cdn.pixabay.com/download/audio/2021/08/05/audio_3d1bb1a8e7.mp3?filename=water-stream-10877.mp3'},
+    {name:'Gentle Rain', src:'https://cdn.pixabay.com/download/audio/2021/09/14/audio_1b3b847ac1.mp3?filename=gentle-rain-11297.mp3'},
+    {name:'Forest Night', src:'https://cdn.pixabay.com/download/audio/2021/09/28/audio_8eb4e3c1e1.mp3?filename=forest-night-11687.mp3'},
+    {name:'Zen Garden', src:'https://cdn.pixabay.com/download/audio/2021/08/05/audio_15c4a73dce.mp3?filename=zen-garden-10880.mp3'},
+    
+    {name:'Seaside Ambience', src:'https://cdn.pixabay.com/download/audio/2021/08/05/audio_443b1f5f32.mp3?filename=seaside-ambience-10883.mp3'},
+    {name:'Soft Wind Bells', src:'https://cdn.pixabay.com/download/audio/2021/08/05/audio_4f8bdb12e3.mp3?filename=soft-wind-bells-10881.mp3'},
+    {name:'Rainforest', src:'https://cdn.pixabay.com/download/audio/2021/09/28/audio_b7b77c12b6.mp3?filename=rainforest-11691.mp3'},
+    {name:'Crackling Fire', src:'https://cdn.pixabay.com/download/audio/2022/02/15/audio_27deec1c6c.mp3?filename=crackling-fire-13001.mp3'},
+    {name:'Evening Birds', src:'https://cdn.pixabay.com/download/audio/2021/08/05/audio_6d2d8e2e1a.mp3?filename=evening-birds-10884.mp3'},
+    {name:'Soft Thunder', src:'https://cdn.pixabay.com/download/audio/2022/03/15/audio_7c98b9373f.mp3?filename=soft-thunder-13134.mp3'},
+    {name:'Calm Flute', src:'https://cdn.pixabay.com/download/audio/2021/08/05/audio_9a3e6f4a5f.mp3?filename=calm-flute-10885.mp3'},
+    {name:'Bamboo Forest', src:'https://cdn.pixabay.com/download/audio/2021/08/05/audio_8b42968c8a.mp3?filename=bamboo-forest-10886.mp3'},
+    {name:'Waterfall', src:'https://cdn.pixabay.com/download/audio/2021/10/20/audio_6d7ad7ae47.mp3?filename=waterfall-12004.mp3'},
+    {name:'Soft Rain Drops', src:'https://cdn.pixabay.com/download/audio/2021/09/14/audio_7c96c9b834.mp3?filename=soft-rain-drops-11296.mp3'},
+    
+    {name:'Distant Thunder', src:'https://cdn.pixabay.com/download/audio/2022/03/15/audio_4e8e0b0e45.mp3?filename=distant-thunder-13132.mp3'},
+    {name:'Quiet Ocean', src:'https://cdn.pixabay.com/download/audio/2021/08/05/audio_37b7b2e471.mp3?filename=quiet-ocean-10887.mp3'},
+    {name:'Night Forest', src:'https://cdn.pixabay.com/download/audio/2021/09/28/audio_865c137f6b.mp3?filename=night-forest-11692.mp3'},
+    {name:'Mountain Breeze', src:'https://cdn.pixabay.com/download/audio/2021/08/05/audio_054d31e37a.mp3?filename=mountain-breeze-10888.mp3'},
+    {name:'Soft Wind Rustle', src:'https://cdn.pixabay.com/download/audio/2021/09/28/audio_324158f4c7.mp3?filename=soft-wind-rustle-11693.mp3'},
+    {name:'Peaceful Bells', src:'https://cdn.pixabay.com/download/audio/2021/08/05/audio_7b8d5eac57.mp3?filename=peaceful-bells-10889.mp3'},
+    {name:'Serene River', src:'https://cdn.pixabay.com/download/audio/2021/10/20/audio_f6e78d3a32.mp3?filename=serene-river-12005.mp3'},
+    {name:'Windy Night', src:'https://cdn.pixabay.com/download/audio/2021/08/05/audio_5836bc09d6.mp3?filename=windy-night-10890.mp3'},
+    {name:'Calm Harp', src:'https://cdn.pixabay.com/download/audio/2021/08/05/audio_909fdb49b2.mp3?filename=calm-harp-10891.mp3'},
+    {name:'Gentle Waves 2', src:'https://cdn.pixabay.com/download/audio/2021/08/05/audio_75f5788b99.mp3?filename=gentle-waves-2-10892.mp3'}
+  ];
+
+  const soundboard = document.getElementById('soundboard');
+  const muteAllBtn = document.getElementById('muteAllBtn');
+  const stopAllBtn = document.getElementById('stopAllBtn');
+  const saveStateBtn = document.getElementById('saveStateBtn');
+  const loadStateBtn = document.getElementById('loadStateBtn');
+  const startRecBtn = document.getElementById('startRecBtn');
+  const stopRecBtn = document.getElementById('stopRecBtn');
+  const recordStatus = document.getElementById('recordStatus');
+
+  // Web Audio setup for mixing and recording
+  const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  const masterGain = audioContext.createGain();
+  masterGain.connect(audioContext.destination);
+
+  // Create MediaStreamDestination for recording mixed audio
+  const dest = audioContext.createMediaStreamDestination();
+
+  // Connect masterGain to dest as well (for recording)
+  masterGain.connect(dest);
+
+  // MediaRecorder for recording the mixed audio
+  let mediaRecorder;
+  let recordedChunks = [];
+
+  // Store references
+  const allSources = [];
+  const allButtons = [];
+  const allVolumes = [];
+  const allAudios = [];
+
+  function createSoundControls({name, src}, index) {
+    const div = document.createElement('div');
+    div.className = 'sound';
+
+    const label = document.createElement('label');
+    label.textContent = name;
+    label.htmlFor = `vol${index}`;
+
+    const btn = document.createElement('button');
+    btn.id = `btn${index}`;
+    btn.textContent = '▶️';
+
+    const vol = document.createElement('input');
+    vol.type = 'range';
+    vol.min = '0';
+    vol.max = '1';
+    vol.step = '0.01';
+    vol.value = '0.5';
+    vol.id = `vol${index}`;
+
+    const audio = new Audio(src);
+    audio.loop = true;
+
+    // Create a media element source for Web Audio API
+    const source = audioContext.createMediaElementSource(audio);
+    const gainNode = audioContext.createGain();
+    gainNode.gain.value = parseFloat(vol.value);
+
+    source.connect(gainNode);
+    gainNode.connect(masterGain);
+
+    div.appendChild(label);
+    div.appendChild(btn);
+    div.appendChild(vol);
+    soundboard.appendChild(div);
+
+    allSources[index] = {audio, source, gainNode};
+    allButtons[index] = btn;
+    allVolumes[index] = vol;
+    allAudios[index] = audio;
+
+    // Play/pause toggle
+    btn.addEventListener('click', () => {
+      // Resume AudioContext if suspended (required by browsers)
+      if (audioContext.state === 'suspended') audioContext.resume();
+
+      if (audio.paused) {
+        audio.play();
+        btn.textContent = '⏸️';
+      } else {
+        audio.pause();
+        btn.textContent = '▶️';
+      }
+    });
+
+    // Volume control
+    vol.addEventListener('input', () => {
+      gainNode.gain.value = parseFloat(vol.value);
+    });
+  }
+
+  // Build UI and audio nodes
+  soundData.forEach(createSoundControls);
+
+  // Mute All toggles mute on masterGain
+  let isMuted = false;
+  muteAllBtn.addEventListener('click', () => {
+    isMuted = !isMuted;
+    masterGain.gain.value = isMuted ? 0 : 1;
+    muteAllBtn.textContent = isMuted ? 'Unmute All 🔊' : 'Mute All 🔇';
+  });
+
+  // Stop All pauses and resets all sounds
+  stopAllBtn.addEventListener('click', () => {
+    allSources.forEach(({audio}, i) => {
+      audio.pause();
+      audio.currentTime = 0;
+      allButtons[i].textContent = '▶️';
+    });
+  });
+
+  // Save current state to localStorage
+  saveStateBtn.addEventListener('click', () => {
+    const state = allSources.map(({audio, gainNode}) => ({
+      playing: !audio.paused,
+      currentTime: audio.currentTime,
+      volume: gainNode.gain.value
+    }));
+    localStorage.setItem('calmingSoundboardState', JSON.stringify(state));
+    alert('State saved!');
+  });
+
+  // Load state from localStorage
+  loadStateBtn.addEventListener('click', async () => {
+    const raw = localStorage.getItem('calmingSoundboardState');
+    if (!raw) {
+      alert('No saved state found.');
+      return;
+    }
+    const state = JSON.parse(raw);
+    for (let i = 0; i < state.length; i++) {
+      const {playing, currentTime, volume} = state[i];
+      const {audio, gainNode} = allSources[i];
+      audio.currentTime = currentTime;
+      gainNode.gain.value = volume;
+      allVolumes[i].value = volume;
+      if (playing) {
+        await audio.play();
+        allButtons[i].textContent = '⏸️';
+      } else {
+        audio.pause();
+        allButtons[i].textContent = '▶️';
+      }
+    }
+  });
+
+  // Recording
+
+  startRecBtn.addEventListener('click', async () => {
+    if (audioContext.state === 'suspended') await audioContext.resume();
+
+    recordedChunks = [];
+    mediaRecorder = new MediaRecorder(dest.stream, {mimeType: 'audio/webm'});
+
+    mediaRecorder.ondataavailable = e => {
+      if (e.data.size > 0) recordedChunks.push(e.data);
+    };
+
+    mediaRecorder.onstart = () => {
+      recordStatus.textContent = 'Recording... 🎙️';
+      startRecBtn.disabled = true;
+      stopRecBtn.disabled = false;
+    };
+
+    mediaRecorder.onstop = async () => {
+      recordStatus.textContent = 'Encoding MP3... ⏳';
+
+      // Convert webm to MP3 using lamejs
+      const webmBlob = new Blob(recordedChunks, {type: 'audio/webm'});
+      const arrayBuffer = await webmBlob.arrayBuffer();
+      const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+
+      const mp3Blob = encodeMp3(audioBuffer);
+
+      // Create download link
+      const url = URL.createObjectURL(mp3Blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'calming-soundboard-recording.mp3';
+      a.click();
+      URL.revokeObjectURL(url);
+
+      recordStatus.textContent = 'Recording saved as MP3 ✅';
+      startRecBtn.disabled = false;
+      stopRecBtn.disabled = true;
+    };
+
+    mediaRecorder.start();
+  });
+
+  stopRecBtn.addEventListener('click', () => {
+    if (mediaRecorder && mediaRecorder.state === 'recording') {
+      mediaRecorder.stop();
+    }
+  });
+
+  // MP3 encoding with lamejs
+  function encodeMp3(audioBuffer) {
+    const numChannels = audioBuffer.numberOfChannels;
+    const sampleRate = audioBuffer.sampleRate;
+    const mp3encoder = new lamejs.Mp3Encoder(numChannels, sampleRate, 128);
+
+    const samples = [];
+    for(let ch = 0; ch < numChannels; ch++) {
+      samples.push(audioBuffer.getChannelData(ch));
+    }
+
+    const blockSize = 1152;
+    const mp3Data = [];
+
+    for (let i = 0; i < samples[0].length; i += blockSize) {
+      const sampleChunk = [];
+      for (let ch = 0; ch < numChannels; ch++) {
+        sampleChunk[ch] = samples[ch].subarray(i, i + blockSize);
+      }
+      let mp3buf;
+      if (numChannels === 1) {
+        mp3buf = mp3encoder.encodeBuffer(floatTo16BitPCM(sampleChunk[0]));
+      } else {
+        mp3buf = mp3encoder.encodeBuffer(
+          floatTo16BitPCM(sampleChunk[0]),
+          floatTo16BitPCM(sampleChunk[1])
+        );
+      }
+      if (mp3buf.length > 0) mp3Data.push(mp3buf);
+    }
+    const mp3buf = mp3encoder.flush();
+    if (mp3buf.length > 0) mp3Data.push(mp3buf);
+
+    return new Blob(mp3Data, {type: 'audio/mp3'});
+  }
+
+  // Convert Float32Array to Int16Array for lamejs
+  function floatTo16BitPCM(input) {
+    const output = new Int16Array(input.length);
+    for (let i = 0; i < input.length; i++) {
+      let s = Math.max(-1, Math.min(1, input[i]));
+      output[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+    }
+    return output;
+  }
+})();
+</script>
+</body>
+</html>
