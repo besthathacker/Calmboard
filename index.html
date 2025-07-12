@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>CalmBoard – Calming Sounds</title>
   <style>
     body {
@@ -11,10 +11,7 @@
       color: #eee;
       margin: 0;
       padding: 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center; min-height: 100vh;
     }
     h1 {
       margin-bottom: 15px;
@@ -37,50 +34,31 @@
     .sound-name {
       margin-bottom: 8px;
       font-weight: bold;
+      font-size: 0.9rem;
     }
     .play-btn {
-      width: 48px;
-      height: 48px;
-      border: none;
-      border-radius: 50%;
-      background: #4caf50;
-      color: #fff;
-      font-size: 1.2rem;
-      cursor: pointer;
+      width: 48px; height: 48px;
+      border: none; border-radius: 50%;
+      background: #4caf50; color: #fff;
+      font-size: 1.2rem; cursor: pointer;
       margin-bottom: 8px;
     }
-    .play-btn.paused {
-      background: #f44336;
-    }
-    input[type=range] {
-      width: 100%;
-    }
+    .play-btn.paused { background: #f44336; }
+    input[type=range] { width: 100%; }
     #controls {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-bottom: 20px;
-      width: 100%;
-      max-width: 800px;
-      justify-content: center;
+      display: flex; gap: 10px; flex-wrap: wrap;
+      margin-bottom: 20px; width: 100%; max-width: 800px; justify-content: center;
     }
     #controls button {
-      flex: 1 1 120px;
-      padding: 10px;
-      border: none;
-      border-radius: 6px;
-      background: #2196f3;
-      color: #fff;
+      flex: 1 1 120px; padding: 10px;
+      border: none; border-radius: 6px;
+      background: #2196f3; color: #fff;
       cursor: pointer;
     }
-    footer {
-      margin-top: auto;
-      color: #777;
-    }
+    footer { margin-top: auto; color: #777; }
   </style>
 </head>
 <body>
-
   <h1>CalmBoard</h1>
   <div id="soundControls"></div>
 
@@ -92,63 +70,58 @@
   <footer>Made With ❤️ By Aiden</footer>
 
   <script>
-    // A small set of calm, reliable MP3s from SoundHelix (nice mellow instrumentals)
+    // A handful of softer, ambient tracks
     const tracks = [
-      { name: "Calm Piano 1", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
-      { name: "Calm Piano 2", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
-      { name: "Gentle Strings", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" },
-      { name: "Soft Guitar", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3" },
+      { name: "Soft Piano", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" },
       { name: "Ambient Pad", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3" },
-      { name: "Peaceful Keys", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3" },
-      { name: "Dreamy Synth", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3" },
-      { name: "Mellow Vibraphone", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3" },
-      { name: "Soft Strings", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3" },
-      { name: "Light Ambient", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3" }
+      { name: "Calm Guitar", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3" },
+      { name: "Dreamy Synth", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3" },
+      { name: "Mellow Keys", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3" },
     ];
 
     const container = document.getElementById("soundControls");
     const sounds = [];
 
-    tracks.forEach((track, i) => {
-      // Create UI
-      const div = document.createElement("div");
+    // Build each control
+    tracks.forEach((t, i) => {
+      const div = document.createElement("div"), 
+            label = document.createElement("div"),
+            btn = document.createElement("button"),
+            slider = document.createElement("input");
+
       div.className = "sound-control";
-      const label = document.createElement("div");
       label.className = "sound-name";
-      label.textContent = track.name;
-      const btn = document.createElement("button");
+      label.textContent = t.name;
+
       btn.className = "play-btn";
       btn.textContent = "▶️";
-      const slider = document.createElement("input");
-      slider.type = "range";
-      slider.min = 0;
-      slider.max = 1;
-      slider.step = 0.01;
-      slider.value = 0.5;
+
+      slider.type = "range"; slider.min = 0; slider.max = 1; slider.step = 0.01; slider.value = 0.5;
 
       div.append(label, btn, slider);
       container.appendChild(div);
 
-      // Create Audio object
-      const audio = new Audio(track.url);
+      const audio = new Audio(t.url);
       audio.loop = true;
       audio.volume = 0.5;
 
-      // Store reference
-      sounds.push({ audio, btn });
+      sounds.push({ audio, btn, slider });
 
-      // Play/Pause toggle
+      // Toggle play/pause
       btn.addEventListener("click", async () => {
-        // iOS Safari needs a user gesture to unlock
-        await audio.play().then(_=>{}).catch(e=>{}); // this also resumes context
-        if (audio.paused) {
-          await audio.play();
-          btn.textContent = "⏸️";
-          btn.classList.add("paused");
-        } else {
-          audio.pause();
-          btn.textContent = "▶️";
-          btn.classList.remove("paused");
+        // on iOS you need user gesture, so we call play() inside click
+        try {
+          if (audio.paused) {
+            await audio.play();
+            btn.textContent = "⏸️";
+            btn.classList.add("paused");
+          } else {
+            audio.pause();
+            btn.textContent = "▶️";
+            btn.classList.remove("paused");
+          }
+        } catch (e) {
+          console.warn("Playback failed:", e);
         }
       });
 
@@ -158,10 +131,10 @@
       });
     });
 
-    // Global controls
+    // Start all / stop all
     document.getElementById("startAllBtn").addEventListener("click", () => {
       sounds.forEach(s => {
-        s.audio.play().catch(e=>{}); 
+        s.audio.play().catch(()=>{});
         s.btn.textContent = "⏸️";
         s.btn.classList.add("paused");
       });
