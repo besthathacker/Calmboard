@@ -6,46 +6,124 @@
   <title>CalmBoard - 50+ Sounds</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #222;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #121212;
       color: #eee;
-      text-align: center;
-      padding: 20px;
+      margin: 0;
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
-      min-height: 100vh;
+      align-items: center;
+      padding: 20px;
+    }
+    h1 {
+      font-weight: 700;
+      font-size: 2.5rem;
+      margin-bottom: 15px;
+    }
+    #soundControls {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 15px;
+      max-width: 1000px;
+      margin-bottom: 30px;
+      width: 100%;
     }
     .sound-control {
-      margin: 8px 0;
+      background: #1e1e1e;
+      border-radius: 10px;
+      padding: 10px 15px;
+      width: 180px;
       display: flex;
-      justify-content: center;
+      flex-direction: column;
       align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-    .sound-name {
-      width: 150px;
-      text-align: left;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.5);
       user-select: none;
     }
-    button {
-      font-size: 16px;
-      min-width: 50px;
+    .sound-name {
+      margin-bottom: 8px;
+      font-weight: 600;
+      font-size: 1rem;
+      text-align: center;
+      height: 36px;
+      overflow: hidden;
+    }
+    button.play-btn {
+      background-color: #4caf50;
+      border: none;
+      border-radius: 50%;
+      width: 48px;
+      height: 48px;
+      font-size: 1.5rem;
+      color: white;
+      cursor: pointer;
+      margin-bottom: 10px;
+      transition: background-color 0.3s ease;
+    }
+    button.play-btn.paused {
+      background-color: #f44336;
+    }
+    button.play-btn:focus {
+      outline: none;
+      box-shadow: 0 0 5px #4caf50;
     }
     input[type="range"] {
-      width: 120px;
+      width: 100%;
+      -webkit-appearance: none;
+      height: 8px;
+      border-radius: 5px;
+      background: #555;
+      cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #4caf50;
+      cursor: pointer;
+      border: none;
+      margin-top: -5px;
+      transition: background-color 0.3s ease;
+    }
+    input[type="range"]:focus::-webkit-slider-thumb {
+      background: #81c784;
     }
     #controls {
-      margin-top: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 40px;
+      max-width: 1000px;
+      width: 100%;
+    }
+    #controls button {
+      background-color: #2196f3;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      color: white;
+      font-size: 1rem;
+      cursor: pointer;
+      user-select: none;
+      transition: background-color 0.3s ease;
+    }
+    #controls button:hover {
+      background-color: #1769aa;
     }
     #recordStatus {
+      text-align: center;
+      font-weight: 600;
+      font-size: 1.1rem;
       margin-top: 10px;
-      font-weight: bold;
+      min-height: 22px;
     }
     footer {
       margin-top: auto;
-      padding: 10px 0;
-      color: #888;
+      padding: 12px 0;
+      color: #777;
       font-size: 14px;
       user-select: none;
     }
@@ -61,18 +139,16 @@
     <button id="stopAllBtn">Stop All ⏹️</button>
     <button id="saveStateBtn">Save State 💾</button>
     <button id="loadStateBtn">Load State 📂</button>
-    <br><br>
     <button id="startRecBtn">Start Recording 🎙️</button>
     <button id="stopRecBtn" disabled>Stop Recording ⏹️</button>
-    <div id="recordStatus"></div>
   </div>
+  <div id="recordStatus"></div>
 
   <footer>Made With ❤️ By Aiden</footer>
 
   <script src="https://cdn.jsdelivr.net/npm/lamejs@1.2.0/lame.min.js"></script>
   <script>
     (async () => {
-      // 50+ calming sounds URLs from Pixabay (public domain)
       const soundData = [
         {name: "Rain", url: "https://cdn.pixabay.com/download/audio/2021/08/04/audio_0a6a6e75ab.mp3?filename=rain-ambient-5514.mp3"},
         {name: "Ocean Waves", url: "https://cdn.pixabay.com/download/audio/2021/11/24/audio_0e7dcd82f1.mp3?filename=ocean-waves-10025.mp3"},
@@ -94,37 +170,6 @@
         {name: "Cave Drips", url: "https://cdn.pixabay.com/download/audio/2021/10/11/audio_9b01f7cc7e.mp3?filename=cave-drips-8495.mp3"},
         {name: "Waterfall", url: "https://cdn.pixabay.com/download/audio/2021/07/28/audio_6f29f9c4e4.mp3?filename=waterfall-6456.mp3"},
         {name: "Underwater", url: "https://cdn.pixabay.com/download/audio/2021/09/19/audio_f3d4dfb9bb.mp3?filename=underwater-8195.mp3"},
-        {name: "Tibetan Bowls", url: "https://cdn.pixabay.com/download/audio/2021/12/24/audio_28eeb39053.mp3?filename=tibetan-bowls-11113.mp3"},
-        {name: "Forest Stream", url: "https://cdn.pixabay.com/download/audio/2022/01/25/audio_c93ec97a87.mp3?filename=forest-stream-11154.mp3"},
-        {name: "Gentle Rain", url: "https://cdn.pixabay.com/download/audio/2021/10/12/audio_b6e8ee51a0.mp3?filename=gentle-rain-8503.mp3"},
-        {name: "Night Ambience", url: "https://cdn.pixabay.com/download/audio/2021/07/21/audio_3f0b62ac1d.mp3?filename=night-ambience-6347.mp3"},
-        {name: "Birdsong", url: "https://cdn.pixabay.com/download/audio/2021/09/06/audio_52931f80f4.mp3?filename=birdsong-7880.mp3"},
-        {name: "Relaxing Water", url: "https://cdn.pixabay.com/download/audio/2022/01/29/audio_248de01f9e.mp3?filename=relaxing-water-11203.mp3"},
-        {name: "Peaceful Forest", url: "https://cdn.pixabay.com/download/audio/2021/07/16/audio_bf83aabc2b.mp3?filename=peaceful-forest-6310.mp3"},
-        {name: "Deep Ocean", url: "https://cdn.pixabay.com/download/audio/2022/02/19/audio_7ca1425d70.mp3?filename=deep-ocean-12112.mp3"},
-        {name: "Campfire", url: "https://cdn.pixabay.com/download/audio/2021/09/07/audio_09b7ac5e7c.mp3?filename=campfire-7935.mp3"},
-        {name: "Snowfall", url: "https://cdn.pixabay.com/download/audio/2021/11/12/audio_62e63aa479.mp3?filename=snowfall-9752.mp3"},
-        {name: "Spring Morning", url: "https://cdn.pixabay.com/download/audio/2021/07/29/audio_44c974cc5b.mp3?filename=spring-morning-6472.mp3"},
-        {name: "Calm Wind", url: "https://cdn.pixabay.com/download/audio/2021/08/12/audio_2588698b36.mp3?filename=calm-wind-6674.mp3"},
-        {name: "Ocean Breeze", url: "https://cdn.pixabay.com/download/audio/2021/07/19/audio_d40b435c30.mp3?filename=ocean-breeze-6285.mp3"},
-        {name: "Distant Thunder", url: "https://cdn.pixabay.com/download/audio/2021/09/08/audio_bf142b9483.mp3?filename=distant-thunder-7965.mp3"},
-        {name: "Rainforest", url: "https://cdn.pixabay.com/download/audio/2022/03/04/audio_5689b97a06.mp3?filename=rainforest-12532.mp3"},
-        {name: "Gentle Stream", url: "https://cdn.pixabay.com/download/audio/2021/07/27/audio_2d5bc0c1a1.mp3?filename=gentle-stream-6428.mp3"},
-        {name: "Light Breeze", url: "https://cdn.pixabay.com/download/audio/2021/08/04/audio_8ce80d24e2.mp3?filename=light-breeze-5516.mp3"},
-        {name: "Calm Night", url: "https://cdn.pixabay.com/download/audio/2021/09/12/audio_b5efdc15aa.mp3?filename=calm-night-8032.mp3"},
-        {name: "Zen Garden", url: "https://cdn.pixabay.com/download/audio/2022/01/28/audio_9b3cd8e4f9.mp3?filename=zen-garden-11193.mp3"},
-        {name: "Crackling Fire", url: "https://cdn.pixabay.com/download/audio/2022/02/08/audio_7d9b08d519.mp3?filename=crackling-fire-12025.mp3"},
-        {name: "Birds & Breeze", url: "https://cdn.pixabay.com/download/audio/2021/07/18/audio_62ab02b4bc.mp3?filename=birds-breeze-6274.mp3"},
-        {name: "Evening Stream", url: "https://cdn.pixabay.com/download/audio/2021/07/26/audio_0b52b7d02b.mp3?filename=evening-stream-6412.mp3"},
-        {name: "Water Drops on Leaves", url: "https://cdn.pixabay.com/download/audio/2021/11/10/audio_4775edb5a3.mp3?filename=water-drops-on-leaves-9714.mp3"},
-        {name: "Thunder & Rain", url: "https://cdn.pixabay.com/download/audio/2021/10/19/audio_aa88163aa4.mp3?filename=thunder-rain-8676.mp3"},
-        {name: "Morning Birds", url: "https://cdn.pixabay.com/download/audio/2021/07/15/audio_d7c80e355b.mp3?filename=morning-birds-6265.mp3"},
-        {name: "Calm Stream", url: "https://cdn.pixabay.com/download/audio/2022/02/07/audio_4e4500cc30.mp3?filename=calm-stream-12004.mp3"},
-        {name: "Gentle Waves", url: "https://cdn.pixabay.com/download/audio/2022/01/30/audio_81d1e0c755.mp3?filename=gentle-waves-11244.mp3"},
-        {name: "Peaceful Rain", url: "https://cdn.pixabay.com/download/audio/2021/08/30/audio_0a5ff0cdbb.mp3?filename=peaceful-rain-7712.mp3"},
-        {name: "Soft Wind", url: "https://cdn.pixabay.com/download/audio/2021/07/31/audio_2114a3ee53.mp3?filename=soft-wind-6457.mp3"},
-        {name: "Forest Birds", url: "https://cdn.pixabay.com/download/audio/2021/07/25/audio_71348d01d9.mp3?filename=forest-birds-6397.mp3"},
-        {name: "Rain on Window", url: "https://cdn.pixabay.com/download/audio/2021/07/13/audio_9d3d2ae408.mp3?filename=rain-on-window-6238.mp3"},
       ];
 
       const audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -144,11 +189,13 @@
       let allButtons = [];
       let allVolumes = [];
 
-      async function ensureAudioContextRunning() {
+      // Unlock AudioContext on first user interaction (needed for iOS)
+      async function unlockAudioContext() {
         if (audioContext.state === 'suspended') {
           await audioContext.resume();
         }
       }
+      document.body.addEventListener('click', unlockAudioContext, {once: true});
 
       function createSoundControls({name, url}, index) {
         const container = document.createElement('div');
@@ -159,6 +206,8 @@
         label.textContent = name;
 
         const btn = document.createElement('button');
+        btn.className = 'play-btn';
+        btn.title = `Play/Pause ${name}`;
         btn.textContent = '▶️';
 
         const vol = document.createElement('input');
@@ -185,18 +234,19 @@
         allVolumes.push(vol);
 
         btn.addEventListener('click', async () => {
-          await ensureAudioContextRunning();
-
-          if (audio.paused) {
-            try {
+          await unlockAudioContext();
+          try {
+            if (audio.paused) {
               await audio.play();
               btn.textContent = '⏸️';
-            } catch (e) {
-              alert('Playback failed: ' + e.message);
+              btn.classList.add('paused');
+            } else {
+              audio.pause();
+              btn.textContent = '▶️';
+              btn.classList.remove('paused');
             }
-          } else {
-            audio.pause();
-            btn.textContent = '▶️';
+          } catch (e) {
+            alert('Playback failed: ' + e.message);
           }
         });
 
@@ -209,20 +259,19 @@
 
       let isMuted = false;
       muteAllBtn.addEventListener('click', async () => {
-        await ensureAudioContextRunning();
-
+        await unlockAudioContext();
         isMuted = !isMuted;
         masterGain.gain.value = isMuted ? 0 : 1;
         muteAllBtn.textContent = isMuted ? 'Unmute All 🔊' : 'Mute All 🔇';
       });
 
       stopAllBtn.addEventListener('click', async () => {
-        await ensureAudioContextRunning();
-
+        await unlockAudioContext();
         allSources.forEach(({audio}, i) => {
           audio.pause();
           audio.currentTime = 0;
           allButtons[i].textContent = '▶️';
+          allButtons[i].classList.remove('paused');
         });
       });
 
@@ -237,8 +286,7 @@
       });
 
       loadStateBtn.addEventListener('click', async () => {
-        await ensureAudioContextRunning();
-
+        await unlockAudioContext();
         const raw = localStorage.getItem('calmingSoundboardState');
         if (!raw) {
           alert('No saved state found.');
@@ -255,12 +303,15 @@
             try {
               await audio.play();
               allButtons[i].textContent = '⏸️';
+              allButtons[i].classList.add('paused');
             } catch {
               allButtons[i].textContent = '▶️';
+              allButtons[i].classList.remove('paused');
             }
           } else {
             audio.pause();
             allButtons[i].textContent = '▶️';
+            allButtons[i].classList.remove('paused');
           }
         }
       });
@@ -272,7 +323,7 @@
       let recordedChunks = [];
 
       startRecBtn.addEventListener('click', async () => {
-        await ensureAudioContextRunning();
+        await unlockAudioContext();
 
         recordedChunks = [];
         mediaRecorder = new MediaRecorder(dest.stream, {mimeType: 'audio/webm'});
