@@ -1,6 +1,113 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>CalmBoard – Calming Sounds</title>
+  <style>
+    body { font-family: Arial, sans-serif; background:#121212; color:#eee; margin:0; padding:20px; display:flex; flex-direction:column; align-items:center; min-height:100vh; }
+    h1 { margin-bottom:15px; }
+    #soundControls { display:grid; grid-template-columns:repeat(auto-fill,180px); gap:12px; width:100%; max-width:800px; margin-bottom:20px; }
+    .sound-control { background:#1e1e1e; padding:12px; border-radius:8px; display:flex; flex-direction:column; align-items:center; }
+    .sound-name { margin-bottom:8px; text-align:center; }
+    .play-btn { font-size:1.2rem; padding:10px; margin-bottom:8px; width:48px; height:48px; border:none; border-radius:50%; cursor:pointer; background:#4caf50; color:#fff; }
+    .play-btn.paused { background:#f44336; }
+    input[type="range"] { width:100%; }
+    #controls { display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap; }
+    #controls button { padding:10px 16px; border:none; border-radius:6px; background:#2196f3; color:#fff; cursor:pointer; flex:1 1 120px; }
+    footer { margin-top:auto; padding:10px; color:#888; }
+  </style>
+</head>
 <body>
-  <button onclick="new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3').play()">Play Test Sound</button>
+
+  <h1>CalmBoard</h1>
+  <div id="soundControls"></div>
+
+  <div id="controls">
+    <button id="startAllBtn">Start All ▶️</button>
+    <button id="stopAllBtn">Stop All ⏹️</button>
+  </div>
+
+  <footer>Made With ❤️ By Aiden</footer>
+
+  <script>
+    (async () => {
+      const soundUrls = [
+        {name: "Relaxing Ambient", url: "https://www.orangefreesounds.com/wp-content/uploads/2017/01/Relaxing-ambient-music.mp3"},
+        {name: "Deep Ambient", url: "https://www.orangefreesounds.com/wp-content/uploads/2020/11/Deep-ambient-music.mp3"},
+        // Add more reliable calming tracks here later
+      ];
+
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const sounds = [];
+      const container = document.getElementById("soundControls");
+
+      soundUrls.forEach((s, i) => {
+        const div = document.createElement("div");
+        div.className = "sound-control";
+
+        const name = document.createElement("div");
+        name.className = "sound-name";
+        name.textContent = s.name;
+
+        const btn = document.createElement("button");
+        btn.className = "play-btn";
+        btn.textContent = "▶️";
+
+        const slider = document.createElement("input");
+        slider.type = "range";
+        slider.min = 0;
+        slider.max = 1;
+        slider.step = 0.01;
+        slider.value = 0.5;
+
+        div.append(name, btn, slider);
+        container.appendChild(div);
+
+        const gain = audioCtx.createGain();
+        gain.gain.value = 0.5;
+        gain.connect(audioCtx.destination);
+
+        let buffer = null, source = null, playing = false;
+
+        fetch(s.url)
+          .then(r => r.arrayBuffer())
+          .then(d => audioCtx.decodeAudioData(d))
+          .then(b => { buffer = b; })
+          .catch(e => console.error("Error decoding", s.name, e));
+
+        btn.addEventListener("click", async () => {
+          if (audioCtx.state === 'suspended') await audioCtx.resume();
+          if (playing) {
+            source.stop(); playing = false;
+            btn.textContent = "▶️"; btn.classList.remove("paused");
+          } else if (buffer) {
+            source = audioCtx.createBufferSource();
+            source.buffer = buffer;
+            source.loop = true;
+            source.connect(gain);
+            source.start(0);
+            playing = true;
+            btn.textContent = "⏸️"; btn.classList.add("paused");
+          }
+        });
+
+        slider.addEventListener("input", () => {
+          gain.gain.value = parseFloat(slider.value);
+        });
+
+        sounds.push({button: btn, stop: () => { if (playing) { source.stop(); playing = false; btn.textContent = "▶️"; btn.classList.remove("paused"); }}});
+      });
+
+      document.getElementById("startAllBtn").addEventListener("click", async () => {
+        if (audioCtx.state === 'suspended') await audioCtx.resume();
+        sounds.forEach(s => s.button.click());
+      });
+
+      document.getElementById("stopAllBtn").addEventListener("click", () => {
+        sounds.forEach(s => s.stop());
+      });
+    })();
+  </script>
 </body>
 </html>
