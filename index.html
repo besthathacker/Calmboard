@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>CalmBoard – 50 Unique Calm Sounds</title>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CalmBoard – 50 OrangeFreeSounds (Self-Checking)</title>
   <style>
     :root {
       --bg: #08191c;
@@ -15,7 +15,7 @@
     body {
       margin: 0; padding: 20px;
       background: var(--bg); color: var(--fg);
-      font-family: "Helvetica Neue", Arial, sans-serif;
+      font-family: Arial, sans-serif;
       display: flex; flex-direction: column; align-items: center;
       min-height: 100vh; user-select: none;
     }
@@ -66,19 +66,16 @@
   </style>
 </head>
 <body>
-
   <h1>CalmBoard</h1>
-  <div id="soundControls"></div>
-
+  <div id="soundControls">Loading sounds…</div>
   <div id="controls">
     <button id="startAllBtn">Start All ▶️</button>
     <button id="stopAllBtn">Stop All ⏹️</button>
   </div>
-
   <footer>Made With ❤️ By Aiden</footer>
 
   <script>
-    // 50 unique calm tracks from OrangeFreeSounds
+    // 50 unique calm MP3s from OrangeFreeSounds
     const calmUrls = [
       {name:"Relaxing Ambient",            url:"https://www.orangefreesounds.com/wp-content/uploads/2017/01/Relaxing-ambient-music.mp3"},
       {name:"Deep Ambient",                url:"https://www.orangefreesounds.com/wp-content/uploads/2020/11/Deep-ambient-music.mp3"},
@@ -120,7 +117,7 @@
       {name:"Soft Chimes",                 url:"https://www.orangefreesounds.com/wp-content/uploads/2019/03/Soft-chimes.mp3"},
       {name:"Morning Rain",                url:"https://www.orangefreesounds.com/wp-content/uploads/2021/08/Morning-rain.mp3"},
       {name:"Soft Ocean",                  url:"https://www.orangefreesounds.com/wp-content/uploads/2020/04/Soft-ocean.mp3"},
-      {name:"Rustling Leaves",            url:"https://www.orangefreesounds.com/wp-content/uploads/2020/07/Rustling-leaves.mp3"},
+      {name:"Rustling Leaves",             url:"https://www.orangefreesounds.com/wp-content/uploads/2020/07/Rustling-leaves.mp3"},
       {name:"Windy Hill",                  url:"https://www.orangefreesounds.com/wp-content/uploads/2019/08/Windy-hill.mp3"},
       {name:"Night Forest",                url:"https://www.orangefreesounds.com/wp-content/uploads/2021/02/Night-forest.mp3"},
       {name:"Soft Harp 2",                 url:"https://www.orangefreesounds.com/wp-content/uploads/2019/10/Soft-harp-2.mp3"},
@@ -133,62 +130,76 @@
     const container = document.getElementById("soundControls");
     const sounds = [];
 
-    calmUrls.forEach(({name, url}) => {
-      const div = document.createElement("div");
-      div.className = "sound-control";
+    // Verify each URL first, then build controls only for those that work
+    container.textContent = "Verifying URLs…";
 
-      const label = document.createElement("div");
-      label.className = "sound-name";
-      label.textContent = name;
+    Promise.all(calmUrls.map(track =>
+      fetch(track.url, {method:"HEAD"})
+        .then(res => res.ok ? track : null)
+        .catch(()=>null)
+    )).then(validList => {
+      container.textContent = "";
+      validList.filter(t => t).forEach(({name,url}) => {
+        const div = document.createElement("div");
+        div.className = "sound-control";
 
-      const btn = document.createElement("button");
-      btn.className = "play-btn";
-      btn.textContent = "▶️";
+        const label = document.createElement("div");
+        label.className = "sound-name";
+        label.textContent = name;
 
-      const slider = document.createElement("input");
-      slider.type = "range";
-      slider.min = "0"; slider.max = "1"; slider.step = "0.01"; slider.value = "0.5";
+        const btn = document.createElement("button");
+        btn.className = "play-btn";
+        btn.textContent = "▶️";
 
-      div.append(label, btn, slider);
-      container.appendChild(div);
+        const slider = document.createElement("input");
+        slider.type = "range";
+        slider.min = "0"; slider.max = "1"; slider.step = "0.01"; slider.value = "0.5";
 
-      const audio = new Audio(url);
-      audio.loop = true;
-      audio.volume = 0.5;
+        div.append(label, btn, slider);
+        container.appendChild(div);
 
-      sounds.push({ audio, btn });
+        const audio = new Audio(url);
+        audio.loop = true;
+        audio.volume = 0.5;
 
-      btn.addEventListener("click", () => {
-        if (audio.paused) {
-          audio.play().catch(() => {});
+        sounds.push({audio, btn});
+
+        btn.addEventListener("click", () => {
+          if (audio.paused) {
+            audio.play().catch(()=>{});
+            btn.textContent = "⏸️";
+            btn.classList.add("paused");
+          } else {
+            audio.pause();
+            btn.textContent = "▶️";
+            btn.classList.remove("paused");
+          }
+        });
+
+        slider.addEventListener("input", () => {
+          audio.volume = parseFloat(slider.value);
+        });
+      });
+
+      if (!sounds.length) {
+        container.textContent = "No working URLs found.";
+      }
+
+      document.getElementById("startAllBtn").onclick = () => {
+        sounds.forEach(({audio,btn}) => {
+          audio.play().catch(()=>{});
           btn.textContent = "⏸️";
           btn.classList.add("paused");
-        } else {
+        });
+      };
+      document.getElementById("stopAllBtn").onclick = () => {
+        sounds.forEach(({audio,btn}) => {
           audio.pause();
+          audio.currentTime = 0;
           btn.textContent = "▶️";
           btn.classList.remove("paused");
-        }
-      });
-
-      slider.addEventListener("input", () => {
-        audio.volume = parseFloat(slider.value);
-      });
-    });
-
-    document.getElementById("startAllBtn").addEventListener("click", () => {
-      sounds.forEach(({audio, btn}) => {
-        audio.play().catch(() => {});
-        btn.textContent = "⏸️";
-        btn.classList.add("paused");
-      });
-    });
-    document.getElementById("stopAllBtn").addEventListener("click", () => {
-      sounds.forEach(({audio, btn}) => {
-        audio.pause();
-        audio.currentTime = 0;
-        btn.textContent = "▶️";
-        btn.classList.remove("paused");
-      });
+        });
+      };
     });
   </script>
 </body>
