@@ -3,100 +3,145 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>CalmBoard – Calming Sounds</title>
+  <title>CalmBoard – 50 Orange Free Sounds</title>
   <style>
+    :root {
+      --bg: #08191c;
+      --fg: #ffffff;
+      --muted: #b3b3b3;
+      --panel: #121212;
+      --accent: #1db954;
+    }
     body {
-      font-family: Arial, sans-serif;
-      background: #121212;
-      color: #eee;
-      margin: 0;
-      padding: 20px;
-      display: flex; flex-direction: column; align-items: center; min-height: 100vh;
+      margin: 0; padding: 20px;
+      background: var(--bg); color: var(--fg);
+      font-family: "Helvetica Neue", Arial, sans-serif;
+      display: flex; flex-direction: column; align-items: center;
+      min-height: 100vh; user-select: none;
     }
     h1 {
-      margin-bottom: 15px;
-      font-size: 2rem;
+      font-size: 2rem; margin-bottom: 16px;
     }
     #soundControls {
       display: grid;
-      grid-template-columns: repeat(auto-fill,180px);
-      gap: 12px;
-      width: 100%;
-      max-width: 800px;
+      grid-template-columns: repeat(auto-fill, 160px);
+      gap: 12px; width: 100%; max-width: 960px;
       margin-bottom: 20px;
     }
     .sound-control {
-      background: #1e1e1e;
-      border-radius: 8px;
-      padding: 12px;
-      text-align: center;
+      background: var(--panel); border-radius: 8px;
+      padding: 12px; text-align: center;
     }
     .sound-name {
-      margin-bottom: 8px;
-      font-weight: bold;
-      font-size: 0.9rem;
+      font-size: 0.9rem; margin-bottom: 8px;
+      color: var(--muted); height: 36px; overflow: hidden;
     }
     .play-btn {
-      width: 48px; height: 48px;
-      border: none; border-radius: 50%;
-      background: #4caf50; color: #fff;
-      font-size: 1.2rem; cursor: pointer;
-      margin-bottom: 8px;
+      width: 44px; height: 44px; border: none;
+      border-radius: 50%; background: var(--accent);
+      color: var(--bg); font-size: 1.2rem; cursor: pointer;
+      margin-bottom: 8px; transition: background 0.2s ease;
     }
-    .play-btn.paused { background: #f44336; }
-    input[type=range] { width: 100%; }
+    .play-btn.paused {
+      background: #e0245e; color: var(--fg);
+    }
+    input[type=range] {
+      width: 100%; accent-color: var(--accent);
+    }
     #controls {
-      display: flex; gap: 10px; flex-wrap: wrap;
-      margin-bottom: 20px; width: 100%; max-width: 800px; justify-content: center;
+      display: flex; flex-wrap: wrap; gap: 10px;
+      margin-bottom: 20px; width: 100%; max-width: 960px;
+      justify-content: center;
     }
     #controls button {
       flex: 1 1 120px; padding: 10px;
       border: none; border-radius: 6px;
-      background: #2196f3; color: #fff;
-      cursor: pointer;
+      background: var(--accent); color: var(--bg);
+      font-weight: bold; cursor: pointer;
+      transition: opacity 0.2s ease;
     }
-    footer { margin-top: auto; color: #777; }
+    #controls button:hover { opacity: 0.8; }
+    footer {
+      margin-top: auto; color: var(--muted);
+      font-size: 0.85rem; text-align: center;
+    }
   </style>
 </head>
 <body>
   <h1>CalmBoard</h1>
   <div id="soundControls"></div>
-
   <div id="controls">
     <button id="startAllBtn">Start All ▶️</button>
     <button id="stopAllBtn">Stop All ⏹️</button>
   </div>
-
   <footer>Made With ❤️ By Aiden</footer>
 
   <script>
-    // A handful of softer, ambient tracks
+    // 50 calming MP3s from OrangeFreeSounds.com
     const tracks = [
-      { name: "Soft Piano", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" },
-      { name: "Ambient Pad", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3" },
-      { name: "Calm Guitar", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3" },
-      { name: "Dreamy Synth", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3" },
-      { name: "Mellow Keys", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3" },
+      {name:"Relaxing Ambient",url:"https://www.orangefreesounds.com/wp-content/uploads/2017/01/Relaxing-ambient-music.mp3"},
+      {name:"Deep Ambient",url:"https://www.orangefreesounds.com/wp-content/uploads/2020/11/Deep-ambient-music.mp3"},
+      {name:"Forest Stream",url:"https://www.orangefreesounds.com/wp-content/uploads/2021/10/Forest-stream-ambience.mp3"},
+      {name:"Ocean Waves",url:"https://www.orangefreesounds.com/wp-content/uploads/2021/08/Ocean-waves-sound.mp3"},
+      {name:"Soft Bells",url:"https://www.orangefreesounds.com/wp-content/uploads/2019/08/Soft-bells.mp3"},
+      {name:"Rain on Tent",url:"https://www.orangefreesounds.com/wp-content/uploads/2021/07/Rain-on-tent.mp3"},
+      {name:"Rainforest Ambience",url:"https://www.orangefreesounds.com/wp-content/uploads/2019/10/Rainforest-ambience.mp3"},
+      {name:"Wind Chimes",url:"https://www.orangefreesounds.com/wp-content/uploads/2020/07/Wind-chimes.mp3"},
+      {name:"Night Crickets",url:"https://www.orangefreesounds.com/wp-content/uploads/2021/09/Night-crickets.mp3"},
+      {name:"Thunderstorm",url:"https://www.orangefreesounds.com/wp-content/uploads/2018/04/Thunderstorm.mp3"},
+      {name:"Campfire Crackling",url:"https://www.orangefreesounds.com/wp-content/uploads/2018/07/Campfire-crackling.mp3"},
+      {name:"Birds Chirping",url:"https://www.orangefreesounds.com/wp-content/uploads/2020/09/Birds-chirping.mp3"},
+      {name:"Water Drops",url:"https://www.orangefreesounds.com/wp-content/uploads/2020/03/Water-drops.mp3"},
+      {name:"Calm Piano",url:"https://www.orangefreesounds.com/wp-content/uploads/2021/02/Calm-piano.mp3"},
+      {name:"Soft Guitar",url:"https://www.orangefreesounds.com/wp-content/uploads/2020/05/Soft-guitar.mp3"},
+      {name:"Echoing Cave",url:"https://www.orangefreesounds.com/wp-content/uploads/2019/12/Echoing-cave.mp3"},
+      {name:"Winter Wind",url:"https://www.orangefreesounds.com/wp-content/uploads/2020/11/Winter-wind.mp3"},
+      {name:"Stream in Forest",url:"https://www.orangefreesounds.com/wp-content/uploads/2017/03/Stream-in-forest.mp3"},
+      {name:"Birdsong Morning",url:"https://www.orangefreesounds.com/wp-content/uploads/2020/08/Birdsong-morning.mp3"},
+      {name:"Soft Rain",url:"https://www.orangefreesounds.com/wp-content/uploads/2021/04/Soft-rain.mp3"},
+      {name:"Lake Ambience",url:"https://www.orangefreesounds.com/wp-content/uploads/2019/05/Lake-ambience.mp3"},
+      {name:"Wind in Trees",url:"https://www.orangefreesounds.com/wp-content/uploads/2021/11/Wind-in-trees.mp3"},
+      {name:"Night Ocean",url:"https://www.orangefreesounds.com/wp-content/uploads/2021/03/Night-ocean.mp3"},
+      {name:"Underwater Bubbles",url:"https://www.orangefreesounds.com/wp-content/uploads/2018/10/Underwater-bubbles.mp3"},
+      {name:"Soft Harp",url:"https://www.orangefreesounds.com/wp-content/uploads/2020/12/Soft-harp.mp3"},
+      {name:"Morning Stream",url:"https://www.orangefreesounds.com/wp-content/uploads/2019/11/Morning-stream.mp3"},
+      {name:"Quiet Pond",url:"https://www.orangefreesounds.com/wp-content/uploads/2018/06/Quiet-pond.mp3"},
+      {name:"Distant Thunder",url:"https://www.orangefreesounds.com/wp-content/uploads/2019/07/Distant-thunder.mp3"},
+      {name:"Soft Flute",url:"https://www.orangefreesounds.com/wp-content/uploads/2020/10/Soft-flute.mp3"},
+      {name:"Zen Garden",url:"https://www.orangefreesounds.com/wp-content/uploads/2021/06/Zen-garden.mp3"},
+      {name:"Gentle Stream",url:"https://www.orangefreesounds.com/wp-content/uploads/2017/05/Gentle-stream.mp3"},
+      {name:"Calm Wind",url:"https://www.orangefreesounds.com/wp-content/uploads/2020/02/Calm-wind.mp3"},
+      {name:"Peaceful Rainforest",url:"https://www.orangefreesounds.com/wp-content/uploads/2019/09/Peaceful-rainforest.mp3"},
+      {name:"Frozen Lake",url:"https://www.orangefreesounds.com/wp-content/uploads/2020/01/Frozen-lake.mp3"},
+      {name:"Bird & Breeze",url:"https://www.orangefreesounds.com/wp-content/uploads/2018/12/Bird-and-breeze.mp3"},
+      {name:"Seaside Ambience",url:"https://www.orangefreesounds.com/wp-content/uploads/2021/07/Seaside-ambience.mp3"},
+      {name:"Meadow Birds",url:"https://www.orangefreesounds.com/wp-content/uploads/2020/06/Meadow-birds.mp3"},
+      {name:"Soft Chimes",url:"https://www.orangefreesounds.com/wp-content/uploads/2019/03/Soft-chimes.mp3"},
+      {name:"Morning Rain",url:"https://www.orangefreesounds.com/wp-content/uploads/2021/08/Morning-rain.mp3"},
+      {name:"Soft Ocean",url:"https://www.orangefreesounds.com/wp-content/uploads/2020/04/Soft-ocean.mp3"},
+      {name:"Rustling Leaves",url:"https://www.orangefreesounds.com/wp-content/uploads/2020/07/Rustling-leaves.mp3"},
+      {name:"Windy Hill",url:"https://www.orangefreesounds.com/wp-content/uploads/2019/08/Windy-hill.mp3"},
+      {name:"Night Forest",url:"https://www.orangefreesounds.com/wp-content/uploads/2021/02/Night-forest.mp3"},
+      {name:"Soft Harp 2",url:"https://www.orangefreesounds.com/wp-content/uploads/2019/10/Soft-harp-2.mp3"},
+      {name:"Calm River",url:"https://www.orangefreesounds.com/wp-content/uploads/2017/02/Calm-river.mp3"},
+      {name:"Mountain Stream",url:"https://www.orangefreesounds.com/wp-content/uploads/2021/05/Mountain-stream.mp3"},
+      {name:"Rain on Leaves",url:"https://www.orangefreesounds.com/wp-content/uploads/2020/09/Rain-on-leaves.mp3"},
+      {name:"Ocean Breeze",url:"https://www.orangefreesounds.com/wp-content/uploads/2018/05/Ocean-breeze.mp3"}
     ];
 
     const container = document.getElementById("soundControls");
     const sounds = [];
 
-    // Build each control
+    // Build UI & Audio
     tracks.forEach((t, i) => {
-      const div = document.createElement("div"), 
-            label = document.createElement("div"),
-            btn = document.createElement("button"),
-            slider = document.createElement("input");
-
-      div.className = "sound-control";
-      label.className = "sound-name";
-      label.textContent = t.name;
-
-      btn.className = "play-btn";
-      btn.textContent = "▶️";
-
-      slider.type = "range"; slider.min = 0; slider.max = 1; slider.step = 0.01; slider.value = 0.5;
+      const div = document.createElement("div"); div.className = "sound-control";
+      const label = document.createElement("div");
+      label.className = "sound-name"; label.textContent = t.name;
+      const btn = document.createElement("button");
+      btn.className = "play-btn"; btn.textContent = "▶️";
+      const slider = document.createElement("input");
+      slider.type = "range"; slider.min = "0"; slider.max = "1";
+      slider.step = "0.01"; slider.value = "0.5";
 
       div.append(label, btn, slider);
       container.appendChild(div);
@@ -105,46 +150,33 @@
       audio.loop = true;
       audio.volume = 0.5;
 
-      sounds.push({ audio, btn, slider });
+      sounds.push({ audio, btn });
 
-      // Toggle play/pause
-      btn.addEventListener("click", async () => {
-        // on iOS you need user gesture, so we call play() inside click
-        try {
-          if (audio.paused) {
-            await audio.play();
-            btn.textContent = "⏸️";
-            btn.classList.add("paused");
-          } else {
-            audio.pause();
-            btn.textContent = "▶️";
-            btn.classList.remove("paused");
-          }
-        } catch (e) {
-          console.warn("Playback failed:", e);
+      btn.addEventListener("click", () => {
+        if (audio.paused) {
+          audio.play().catch(()=>{});
+          btn.textContent = "⏸️"; btn.classList.add("paused");
+        } else {
+          audio.pause();
+          btn.textContent = "▶️"; btn.classList.remove("paused");
         }
       });
-
-      // Volume control
       slider.addEventListener("input", () => {
         audio.volume = parseFloat(slider.value);
       });
     });
 
-    // Start all / stop all
+    // Global controls
     document.getElementById("startAllBtn").addEventListener("click", () => {
       sounds.forEach(s => {
         s.audio.play().catch(()=>{});
-        s.btn.textContent = "⏸️";
-        s.btn.classList.add("paused");
+        s.btn.textContent = "⏸️"; s.btn.classList.add("paused");
       });
     });
     document.getElementById("stopAllBtn").addEventListener("click", () => {
       sounds.forEach(s => {
-        s.audio.pause();
-        s.audio.currentTime = 0;
-        s.btn.textContent = "▶️";
-        s.btn.classList.remove("paused");
+        s.audio.pause(); s.audio.currentTime = 0;
+        s.btn.textContent = "▶️"; s.btn.classList.remove("paused");
       });
     });
   </script>
