@@ -1,0 +1,35 @@
+name: Download Home Assistant Wheels
+
+on:
+  workflow_dispatch:  # Manual trigger
+
+jobs:
+  download-wheels:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4  # v4 syntax
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Create directory for wheels
+        run: mkdir -p ha_wheels
+
+      - name: Upgrade pip
+        run: python -m pip install --upgrade pip
+
+      - name: Download Home Assistant wheels (latest)
+        run: pip download homeassistant -d ha_wheels  # no version pinning
+
+      - name: List downloaded files
+        run: ls -lh ha_wheels
+
+      - name: Upload wheels as artifact
+        uses: actions/upload-artifact@v4  # v4 syntax
+        with:
+          name: home-assistant-wheels
+          path: ha_wheels/
